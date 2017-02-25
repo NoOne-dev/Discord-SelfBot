@@ -38,12 +38,6 @@ class Misc:
                      "Ask again later", "Better not tell you now", "Cannot predict now", "Concentrate and ask again",
                      "Don't count on it", "My reply is no", "My sources say no", "Outlook not so good", "Very doubtful"]
 
-    # Links to the Selfbot project on Github
-    @commands.command()
-    async def git(self, ctx):
-        await ctx.message.delete()
-        await ctx.send('https://github.com/IgneelDxD')
-
     # Sends a googleitfor.me link with the specified tags
     @commands.command()
     async def l2g(self, ctx, *, msg: str):
