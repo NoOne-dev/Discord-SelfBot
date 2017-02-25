@@ -1,7 +1,7 @@
+import asyncio
 import json
 import os
 import uuid
-import asyncio
 
 
 class Config:

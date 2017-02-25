@@ -1,10 +1,11 @@
+import aiohttp
 import discord
-from discord.ext import commands
+import logging
 import random
+
+from discord.ext import commands
 from enum import Enum
 from random import choice
-import aiohttp
-import logging
 from .utils.checks import perms
 
 log = logging.getLogger('LOG')

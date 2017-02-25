@@ -1,9 +1,11 @@
-from discord.ext import commands
-import logging
 import asyncio
+import logging
 import os
 import sys
+
+from discord.ext import commands
 from .utils import config
+
 log = logging.getLogger('LOG')
 
 

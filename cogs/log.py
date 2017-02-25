@@ -2,8 +2,6 @@ import discord
 from discord.ext import commands
 from .utils import config
 from .utils.checks import getUser, perms
-import logging
-TotalNonesense = logging.getLogger('LOG')
 
 
 class Logging:
@@ -25,20 +23,20 @@ class Logging:
     async def on(self, ctx):
         await self.config.put('setlog', 'on')
         await ctx.message.delete()
-        await ctx.send('Mention Log ``on``', delete_after=3)
+        await ctx.send('\N{HEAVY CHECK MARK} Mention Log set to ``on``', delete_after=3)
 
     # Log Off
     @log.command()
     async def off(self, ctx):
         await self.config.put('setlog', 'off')
         await ctx.message.delete()
-        await ctx.send('Mention Log ``off``', delete_after=3)
+        await ctx.send('\N{HEAVY CHECK MARK} Mention Log set to ``off``', delete_after=3)
 
     # Log Status
     @log.command()
     async def status(self, ctx):
         await ctx.message.delete()
-        await ctx.send('Mention logging is currently ``%s``' % self.config.get('setlog', []), delete_after=3)
+        await ctx.send('<:robot:273922151856209923> Mention logging is currently ``%s``' % self.config.get('setlog', []), delete_after=3)
 
     # Add Key-Word to Logger
     @log.command()
@@ -49,11 +47,11 @@ class Logging:
         if msg in keys:
             keys.remove(msg)
             await self.logging.put('key', keys)
-            await ctx.send(':heavy_check_mark: Removed Keyword ``%s`` from Logger' % msg,  delete_after=5)
+            await ctx.send('\N{HEAVY CHECK MARK} Removed Keyword ``%s`` from Logger' % msg,  delete_after=5)
         elif msg not in keys:
             keys.append(msg)
             await self.logging.put('key', keys)
-            await ctx.send(':heavy_check_mark: Added Keyword ``%s`` to Logger' % msg,  delete_after=5)
+            await ctx.send('\N{HEAVY CHECK MARK} Added Keyword ``%s`` to Logger' % msg,  delete_after=5)
 
     # Add Blocked-Key-Word to Logger
     @log.command()
@@ -64,11 +62,11 @@ class Logging:
         if msg in keys:
             keys.remove(msg)
             await self.logging.put('key-blocked', keys)
-            await ctx.send(':heavy_check_mark: Unblocked ``%s`` from Logger' % msg,  delete_after=5)
+            await ctx.send('\N{HEAVY CHECK MARK} Unblocked ``%s`` from Logger' % msg,  delete_after=5)
         elif msg not in keys:
             keys.append(msg)
             await self.logging.put('key-blocked', keys)
-            await ctx.send(':heavy_check_mark: Blocked ``%s`` from Logger' % msg,  delete_after=5)
+            await ctx.send('\N{HEAVY CHECK MARK} Blocked ``%s`` from Logger' % msg,  delete_after=5)
 
     # Show Logging Infosconfig
     @log.command()
@@ -135,11 +133,11 @@ class Logging:
         if guild in guilds:
             guilds.remove(guild)
             await self.logging.put('block-guild', guilds)
-            await ctx.send(':heavy_check_mark: Removed guild with ID ``%s`` from blacklist' % guild,  delete_after=5)
+            await ctx.send('\N{HEAVY CHECK MARK} Removed guild with ID ``%s`` from blacklist' % guild,  delete_after=5)
         else:
             guilds.append(guild)
             await self.logging.put('block-guild', guilds)
-            await ctx.send(':heavy_check_mark: Added guild with ID ``%s`` to blacklist' % guild,  delete_after=5)
+            await ctx.send('\N{HEAVY CHECK MARK} Added guild with ID ``%s`` to blacklist' % guild,  delete_after=5)
 
     # Blacklist Channel
     @blacklist.command(no_pm=True)
@@ -150,11 +148,11 @@ class Logging:
         if channel in channels:
             channels.remove(channel)
             await self.logging.put('block-channel', channels)
-            await ctx.send(':heavy_check_mark: Removed Channel with ID ``%s`` from blacklist' % channel,  delete_after=5)
+            await ctx.send('\N{HEAVY CHECK MARK} Removed Channel with ID ``%s`` from blacklist' % channel,  delete_after=5)
         else:
             channels.append(channel)
             await self.logging.put('block-channel', channels)
-            await ctx.send(':heavy_check_mark: Added Channel with ID ``%s`` to blacklist' % channel,  delete_after=5)
+            await ctx.send('\N{HEAVY CHECK MARK} Added Channel with ID ``%s`` to blacklist' % channel,  delete_after=5)
 
     # Blacklist user
     @blacklist.command(no_pm=True)
@@ -168,11 +166,11 @@ class Logging:
         if user.id in users:
             users.remove(user.id)
             await self.logging.put('block-user', users)
-            await ctx.send(':heavy_check_mark: Removed %s with ID ``%s`` from blacklist' % (ctx.message.guild.get_member(user.id), user.id),  delete_after=5)
+            await ctx.send('\N{HEAVY CHECK MARK} Removed %s with ID ``%s`` from blacklist' % (ctx.message.guild.get_member(user.id), user.id),  delete_after=5)
         else:
             users.append(user.id)
             await self.logging.put('block-user', users)
-            await ctx.send(':heavy_check_mark: Added %s with ID ``%s`` to blacklist' % (ctx.message.guild.get_member(user.id), user.id),  delete_after=5)
+            await ctx.send('\N{HEAVY CHECK MARK} Added %s with ID ``%s`` to blacklist' % (ctx.message.guild.get_member(user.id), user.id),  delete_after=5)
 
 
 def setup(bot):

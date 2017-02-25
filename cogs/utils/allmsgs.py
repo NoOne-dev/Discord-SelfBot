@@ -1,5 +1,6 @@
 import json
 import mimetypes
+
 from random import randint
 
 def quickcmds(message):

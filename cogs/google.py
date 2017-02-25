@@ -1,13 +1,12 @@
-from .utils import config
+import aiohttp
 import discord
 import json
+
 from discord.ext import commands
-from .utils.checks import perms
-import aiohttp
-from urllib.parse import parse_qs
 from lxml import etree
-import logging
-log = logging.getLogger('LOG')
+from urllib.parse import parse_qs
+from .utils import config
+from .utils.checks import perms
 
 
 class Google:

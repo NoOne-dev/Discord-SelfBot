@@ -1,13 +1,15 @@
-from .utils.checks import perms
 import aiohttp
-import spice_api as spice
-from urllib.parse import parse_qs
-from lxml import etree
 import discord
 import logging
-from discord.ext import commands
-from .utils import config
+import spice_api as spice
+
 from bs4 import BeautifulSoup
+from discord.ext import commands
+from lxml import etree
+from urllib.parse import parse_qs
+from .utils import config
+from .utils.checks import perms
+
 log = logging.getLogger('LOG')
 
 

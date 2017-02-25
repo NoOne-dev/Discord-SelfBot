@@ -1,8 +1,10 @@
 import discord
-from discord import utils
-from discord.ext import commands
 import datetime
 import logging
+import unicodedata
+
+from discord import utils
+from discord.ext import commands
 from .utils.checks import getUser, getAvi, perms
 
 log = logging.getLogger('LOG')

@@ -1,6 +1,6 @@
+import os
 import subprocess
 import traceback
-import os
 
 while True:
     try:

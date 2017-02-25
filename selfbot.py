@@ -1,11 +1,12 @@
-import discord
-import time
 import datetime
-import traceback
-from discord.ext import commands
-from cogs.utils import config
+import discord
 import logging
+import time
+import traceback
+
+from cogs.utils import config
 from collections import Counter
+from discord.ext import commands
 
 # "Database"
 config = config.Config('config.json')

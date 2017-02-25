@@ -1,8 +1,9 @@
-import json
-import re
 import asyncio
-from discord.ext import commands
+import json
 import logging
+import re
+
+from discord.ext import commands
 
 log = logging.getLogger('LOG')
 
