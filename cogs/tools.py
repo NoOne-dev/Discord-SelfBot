@@ -16,6 +16,7 @@ class Tools:
     def __init__(self, bot):
         self.bot = bot
         self.config = config.Config('config.json')
+        self.logging = config.Config('log.json')
 
     # Command usage stats
     @commands.command()
@@ -202,7 +203,10 @@ class Tools:
             'guild': ctx.message.guild,
             'server': ctx.message.guild,
             'channel': ctx.message.channel,
-            'author': ctx.message.author
+            'author': ctx.message.author,
+            'self': self,
+            'user': getUser,
+            'avi': getAvi,
             }
         env.update(globals())
         try:

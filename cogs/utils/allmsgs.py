@@ -19,8 +19,9 @@ def quickcmds(message):
         return None
 
 
-def custom(message):
+def custom(prefix, content):
 
+    message = content.lower().replace(prefix, '')
     success = False
 
     with open('cogs/utils/config.json') as f:
@@ -28,7 +29,7 @@ def custom(message):
         with open('cogs/utils/commands.json', 'r') as f:
             commands = json.load(f)
         for i in commands:
-            if (message[1:].lower().startswith(i.lower())) or (message[2:].lower().startswith(i.lower())):
+            if i.lower() in message.split():
                 success = True
                 if type(commands[i]) is list:
                     try:
