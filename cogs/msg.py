@@ -32,13 +32,13 @@ class OnMessage:
         if me(message):
             if hasattr(self.bot, 'icount'):
                 self.bot.icount += 1
-            prefix = False
+            prefix = ''
             for i in self.config.get('prefix', []):
                 if message.content.startswith(i):
-                    prefix = True
+                    prefix = i
                     break
-            if prefix:
-                response = custom(message.content)
+            if prefix is not '':
+                response = custom(prefix, message.content)
                 if response is None:
                     pass
                 else:
@@ -69,39 +69,46 @@ class OnMessage:
                         destination = '#{0.channel.name},({0.guild.name})'.format(message)
                     log.info('In {1}:{0.content}'.format(message, destination))
         elif (message.guild is not None) and (self.config.get('setlog', []) == 'on'):
+            if message.guild.id in self.logging.get('block-guild', []):
+                return
+            if message.author.id in self.logging.get('block-user', []):
+                return
+            if message.channel.id in self.logging.get('block-channel', []):
+                return
             mention = name = ping = False
-            if (message.guild.id not in self.logging.get('block-guild', [])) and (message.author.id not in self.logging.get('block-user', [])) or (message.channel.id not in self.logging.get('block-channel', [])):
-                if (message.guild.get_member(self.config.get('me', [])).mentioned_in(message)):
-                    em = discord.Embed(title='\N{BELL} MENTION', colour=0x9b59b6)
-                    ping = True
-                    role = False
-                    if hasattr(self.bot, 'mention_count'):
-                        self.bot.mention_count += 1
-                    for role in message.role_mentions:
-                        if utils.find(message.author.roles, id=role.id):
-                            role = True
-                            em = discord.Embed(title='\N{SPEAKER WITH THREE SOUND WAVES} ROLE MENTION', colour=0x9b59b6)
-                            log.info("Role Mention from #%s, %s" % (message.channel, message.guild))
-                    if not role:
-                        log.info("Mention from #%s, %s" % (message.channel, message.guild))
-                elif (not ping) and (not(any(map(lambda v: v in message.content.lower().split(), self.logging.get('key-blocked', []))))):
-                    for word in self.logging.get('key', []):
-                        if word in message.content.lower().split():
-                            em = discord.Embed(title='\N{HEAVY EXCLAMATION MARK SYMBOL} %s MENTION' % word.upper(), colour=0x9b59b6)
-                            mention = True
-                            name = True
-                            log.info("%s Mention in #%s, %s" % (word.title(), message.channel, message.guild))
-                            break
-                if mention or ping:
-                    if name:
-                        if hasattr(self.bot, 'mention_count_name'):
-                            self.bot.mention_count_name += 1
-                    em.set_author(name=message.author, icon_url=getAvi(message.author))
-                    em.add_field(name='In', value="#%s, ``%s``" % (message.channel, message.guild), inline=False)
-                    em.add_field(name='At', value="%s" % datetime.datetime.now().__format__('%A, %d. %B %Y @ %H:%M:%S'), inline=False)
-                    em.add_field(name='Message', value="%s" % message.clean_content, inline=False)
-                    em.set_thumbnail(url=getAvi(message.author))
-                    await self.bot.get_channel(self.config.get('log_channel', [])).send(embed=em)
+            msg = re.sub('[,.!?]', '', message.content.lower())
+            if (message.guild.get_member(self.config.get('me', [])).mentioned_in(message)):
+                em = discord.Embed(title='\N{BELL} MENTION', colour=0x9b59b6)
+                ping = True
+                role = False
+                if hasattr(self.bot, 'mention_count'):
+                    self.bot.mention_count += 1
+                for role in message.role_mentions:
+                    if utils.find(message.author.roles, id=role.id):
+                        role = True
+                        em = discord.Embed(title='\N{SPEAKER WITH THREE SOUND WAVES} ROLE MENTION', colour=0x9b59b6)
+                        log.info("Role Mention from #%s, %s" % (message.channel, message.guild))
+                if not role:
+                    log.info("Mention from #%s, %s" % (message.channel, message.guild))
+            if any(map(lambda v: v in msg.split(), self.logging.get('key-blocked', []))):
+                return
+            else:
+                for word in self.logging.get('key', []):
+                    if word in msg.split():
+                        em = discord.Embed(title='\N{HEAVY EXCLAMATION MARK SYMBOL} %s MENTION' % word.upper(), colour=0x9b59b6)
+                        mention = name = True
+                        log.info("%s Mention in #%s, %s" % (word.title(), message.channel, message.guild))
+                        break
+            if mention or ping:
+                if name:
+                    if hasattr(self.bot, 'mention_count_name'):
+                        self.bot.mention_count_name += 1
+                em.set_author(name=message.author, icon_url=getAvi(message.author))
+                em.add_field(name='In', value="#%s, ``%s``" % (message.channel, message.guild), inline=False)
+                em.add_field(name='At', value="%s" % datetime.datetime.now().__format__('%A, %d. %B %Y @ %H:%M:%S'), inline=False)
+                em.add_field(name='Message', value="%s" % message.clean_content, inline=False)
+                em.set_thumbnail(url=getAvi(message.author))
+                await self.bot.get_channel(self.config.get('log_channel', [])).send(embed=em)
 
 
 def setup(bot):
