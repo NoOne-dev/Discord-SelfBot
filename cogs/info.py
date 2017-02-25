@@ -163,6 +163,31 @@ class Userinfo:
             await ctx.message.delete()
             await ctx.send("\N{HEAVY EXCLAMATION MARK SYMBOL} User not found",  delete_after=5)
 
+    @commands.command()
+    async def emote(self, ctx, emote: str):
+        success = False
+        # if len(emote) > 1:
+        #     em = emote.split(':')
+        #     emo = None
+        #     for i in self.bot.guilds:
+        #         try:
+        #             emo = utils.get(i.emojis, id=em[1])
+        #             if emo:
+        #                 success = True
+        #                 await ctx.send(emo.url)
+        #                 break
+        #         except:
+        #             pass
+        if len(emote) is 1:
+            success = True
+            uni = format(ord(emote), 'x')
+            name = unicodedata.name(emote)
+            e = discord.Embed(title=name, description='`\\U{0:>08}`\nhttp://twemoji.maxcdn.com/svg/{0}.svg'.format(uni), colour=0x9b59b6)
+            e.set_thumbnail(url='http://twemoji.maxcdn.com/72x72/{}.png'.format(uni))
+            await ctx.send(embed=e)
+        if not success:
+            await ctx.send('\N{HEAVY EXCLAMATION MARK SYMBOL} Either Custom Emote or a unicode symbol!', delete_after=3)
+
 
 def setup(bot):
     bot.add_cog(Userinfo(bot))
