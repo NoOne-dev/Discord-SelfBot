@@ -85,7 +85,7 @@ class OnMessage:
                 elif (not ping) and (not(any(map(lambda v: v in message.content.lower().split(), self.logging.get('key-blocked', []))))):
                     for word in self.logging.get('key', []):
                         if word in message.content.lower().split():
-                            em = discord.Embed(title='\N{HEAVY EXCLAMATION MARK SYMBOL} %s MENTION' % word.upper())
+                            em = discord.Embed(title='\N{HEAVY EXCLAMATION MARK SYMBOL} %s MENTION' % word.upper(), colour=0x9b59b6)
                             mention = True
                             name = True
                             log.info("%s Mention in #%s, %s" % (word.title(), message.channel, message.guild))
@@ -99,7 +99,7 @@ class OnMessage:
                     em.add_field(name='At', value="%s" % datetime.datetime.now().__format__('%A, %d. %B %Y @ %H:%M:%S'), inline=False)
                     em.add_field(name='Message', value="%s" % message.clean_content, inline=False)
                     em.set_thumbnail(url=getAvi(message.author))
-                    await self.bot.get_channel(self.config.get('log_channel', []).send(embed=em))
+                    await self.bot.get_channel(self.config.get('log_channel', [])).send(embed=em)
 
 
 def setup(bot):
