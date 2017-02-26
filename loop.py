@@ -7,6 +7,6 @@ while True:
         if os.path.isfile('quit.txt'):
             os.remove('quit.txt')
             break
-        p = subprocess.call(['python3', 'selfbot.py'])
+        p = subprocess.call(['python3.6', 'selfbot.py'])
     except:
         traceback.print_exc()
