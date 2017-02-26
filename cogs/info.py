@@ -5,7 +5,7 @@ import unicodedata
 
 from discord import utils
 from discord.ext import commands
-from .utils.checks import getUser, getAvi, perms
+from .utils.checks import getUser, perms
 
 log = logging.getLogger('LOG')
 
@@ -47,7 +47,7 @@ class Userinfo:
                 em.add_field(name='Roles [%s]' % (len(mem.roles)-1), value=rolelist[13:], inline=True)
             if (mem.id is not ctx.message.author.id) and guildlist[2:] is not '':
                 em.add_field(name='Shared Guilds [%s]' % guildcount, value='%s' % guildlist[2:], inline=True)
-            em.set_thumbnail(url=getAvi(mem))
+            em.set_thumbnail(url=mem.author.avatar_url)
             em.set_author(name=mem, icon_url='https://i.imgur.com/RHagTDg.png')
             await ctx.message.delete()
             if perms(ctx.message):
@@ -152,7 +152,7 @@ class Userinfo:
         mem = getUser(ctx.message, ctx.message.content[5:])
         if mem is not None:
             em = discord.Embed(timestamp=ctx.message.created_at, colour=mem.colour)
-            em.set_image(url=getAvi(mem))
+            em.set_image(url=mem.author.avatar_url)
             em.set_author(name=mem, icon_url='https://i.imgur.com/RHagTDg.png')
             await ctx.message.delete()
             if perms(ctx.message):

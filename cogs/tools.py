@@ -6,7 +6,7 @@ import os
 import platform
 import psutil
 
-from .utils.checks import getAvi, getUser, me, perms
+from .utils.checks import getUser, me, perms
 from .utils import config
 from discord.ext import commands
 
@@ -205,8 +205,7 @@ class Tools:
             'channel': ctx.message.channel,
             'author': ctx.message.author,
             'self': self,
-            'user': getUser,
-            'avi': getAvi,
+            'user': getUser
             }
         env.update(globals())
         try:

@@ -5,7 +5,7 @@ import re
 
 from .utils import config
 from .utils.allmsgs import quickcmds, custom
-from .utils.checks import hasPassed, perms, me, getAvi
+from .utils.checks import hasPassed, perms, me
 from discord import utils
 
 log = logging.getLogger('LOG')
@@ -103,11 +103,11 @@ class OnMessage:
                 if name:
                     if hasattr(self.bot, 'mention_count_name'):
                         self.bot.mention_count_name += 1
-                em.set_author(name=message.author, icon_url=getAvi(message.author))
+                em.set_author(name=message.author, icon_url=message.author.avatar_url)
                 em.add_field(name='In', value="#%s, ``%s``" % (message.channel, message.guild), inline=False)
                 em.add_field(name='At', value="%s" % datetime.datetime.now().__format__('%A, %d. %B %Y @ %H:%M:%S'), inline=False)
                 em.add_field(name='Message', value="%s" % message.clean_content, inline=False)
-                em.set_thumbnail(url=getAvi(message.author))
+                em.set_thumbnail(url=message.author.avatar_url)
                 await self.bot.get_channel(self.config.get('log_channel', [])).send(embed=em)
 
 

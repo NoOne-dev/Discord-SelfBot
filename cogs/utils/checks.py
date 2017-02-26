@@ -23,13 +23,6 @@ def hasPassed(bot, oldtime):
     return True
 
 
-def getAvi(user):
-    if user.avatar_url is '':
-        return user.default_avatar_url
-    else:
-        return user.avatar_url
-
-
 def getUser(message, msg):
     if '' is msg:
         return message.author
