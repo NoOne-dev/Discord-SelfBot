@@ -142,6 +142,7 @@ class Tools:
         """
         await self.config.put('gamestatus', ctx.message.content[6:])
         await ctx.message.delete()
+        await self.bot.change_presence(game=discord.Game(name=self.config.get('gamestatus', [])), status='invisible', afk=True)
         await ctx.send('Now playing: ``%s``' % self.config.get('gamestatus', []),  delete_after=5)
 
     # Find message with specific Text in Channel History...    Search Term(s) | Text
@@ -170,6 +171,7 @@ class Tools:
     # Deletes messages from Channel History - only number for own, number and "all" to delete every message and not only the own
     @commands.command()
     async def clean(self, ctx, limit: int=25):
+        await ctx.message.delete()
         msg_amt = 0
         async for message in ctx.message.channel.history(limit=limit):
                 if me(message):
