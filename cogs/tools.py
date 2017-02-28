@@ -217,7 +217,10 @@ class Tools:
         except Exception as e:
             await ctx.send(python.format(code, '>>> %s' % type(e).__name__ + ': ' + str(e)))
             return
-        await ctx.send(python.format(code, '>>> Output: %s' % result))
+        if len(str(code) + '>>> Output:' + str(result)) > 2000:
+            await ctx.send('\N{HEAVY EXCLAMATION MARK SYMBOL} Content too big to be printed.')
+        else:
+            await ctx.send(python.format(code, '>>> Output: %s' % result))
 
 
 def setup(bot):

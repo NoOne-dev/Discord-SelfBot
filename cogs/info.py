@@ -1,6 +1,7 @@
 import discord
 import datetime
 import logging
+import re
 import unicodedata
 
 from discord import utils
@@ -15,6 +16,7 @@ class Userinfo:
     def __init__(self, bot):
         self.bot = bot
 
+    # User info on Server
     @commands.command(no_pm=True)
     async def info(self, ctx):
         mem = getUser(ctx.message, ctx.message.content[6:])
@@ -58,6 +60,24 @@ class Userinfo:
             await ctx.message.delete()
             await ctx.send("\N{HEAVY EXCLAMATION MARK SYMBOL} User not found",  delete_after=20)
 
+    # User Avi on Server
+    @commands.command(no_pm=True)
+    async def avi(self, ctx):
+        mem = getUser(ctx.message, ctx.message.content[5:])
+        if mem is not None:
+            em = discord.Embed(timestamp=ctx.message.created_at, colour=mem.colour)
+            em.set_image(url=mem.avatar_url)
+            em.set_author(name=mem, icon_url='https://i.imgur.com/RHagTDg.png')
+            await ctx.message.delete()
+            if perms(ctx.message):
+                await ctx.send(embed=em, delete_after=20)
+            else:
+                await ctx.send('\N{HEAVY EXCLAMATION MARK SYMBOL} No Perms for Embeds, move to a better Guild!', delete_after=5)
+        else:
+            await ctx.message.delete()
+            await ctx.send("\N{HEAVY EXCLAMATION MARK SYMBOL} User not found",  delete_after=5)
+
+    # Roleinfo on Server
     @commands.command(no_pm=True)
     async def role(self, ctx):
         role = None
@@ -92,6 +112,7 @@ class Userinfo:
             await ctx.message.delete()
             await ctx.send("\N{HEAVY EXCLAMATION MARK SYMBOL} Role not found",  delete_after=20)
 
+    # Serverinfo on Server
     @commands.command(no_pm=True)
     async def guild(self, ctx):
         serv = ctx.message.guild
@@ -119,6 +140,7 @@ class Userinfo:
         else:
             await ctx.send('\N{HEAVY EXCLAMATION MARK SYMBOL} No Perms for Embeds, move to a better Guild!', delete_after=5)
 
+    # Emotes from Server
     @commands.command(no_pm=True)
     async def emotes(self, ctx):
         unique_emojis = set(ctx.message.guild.emojis)
@@ -147,43 +169,27 @@ class Userinfo:
         else:
             await ctx.send('\N{HEAVY EXCLAMATION MARK SYMBOL} No Perms for Embeds, move to a better Guild!', delete_after=5)
 
-    @commands.command(no_pm=True)
-    async def avi(self, ctx):
-        mem = getUser(ctx.message, ctx.message.content[5:])
-        if mem is not None:
-            em = discord.Embed(timestamp=ctx.message.created_at, colour=mem.colour)
-            em.set_image(url=mem.avatar_url)
-            em.set_author(name=mem, icon_url='https://i.imgur.com/RHagTDg.png')
-            await ctx.message.delete()
-            if perms(ctx.message):
-                await ctx.send(embed=em, delete_after=20)
-            else:
-                await ctx.send('\N{HEAVY EXCLAMATION MARK SYMBOL} No Perms for Embeds, move to a better Guild!', delete_after=5)
-        else:
-            await ctx.message.delete()
-            await ctx.send("\N{HEAVY EXCLAMATION MARK SYMBOL} User not found",  delete_after=5)
-
+    # Info of Custom or Unicode Emotes
     @commands.command()
     async def emote(self, ctx, emote: str):
+        await ctx.message.delete()
         success = False
-        # if len(emote) > 1:
-        #     em = emote.split(':')
-        #     emo = None
-        #     for i in self.bot.guilds:
-        #         try:
-        #             emo = utils.get(i.emojis, id=em[1])
-        #             if emo:
-        #                 success = True
-        #                 await ctx.send(emo.url)
-        #                 break
-        #         except:
-        #             pass
-        if len(emote) is 1:
+        if re.sub("[^0-9]", "", emote).isdigit():
+            emo = utils.get(self.bot.emojis, id=int(re.sub("[^0-9]", "", emote)))
+            if emo:
+                success = True
+                e = discord.Embed(title='Custom Emote{}'.format(emo), description='**Server: **{}'.format(emo.guild.name), colour=0x9b59b6)
+                e.set_thumbnail(url=emo.url)
+                e.add_field(name=emo.name, value=emo.url, inline=False)
+                await ctx.send(embed=e)
+        else:
             success = True
-            uni = format(ord(emote), 'x')
-            name = unicodedata.name(emote)
-            e = discord.Embed(title=name, description='`\\U{0:>08}`\nhttp://twemoji.maxcdn.com/svg/{0}.svg'.format(uni), colour=0x9b59b6)
-            e.set_thumbnail(url='http://twemoji.maxcdn.com/72x72/{}.png'.format(uni))
+            split = '\n'.join(emote).split('\n')
+            e = discord.Embed(title='Unicode Emote {}'.format(emote), colour=0x9b59b6)
+            for i in split:
+                uni = format(ord(i), 'x')
+                name = unicodedata.name(i)
+                e.add_field(name=name, value='`\\U{0:>08}` - {1}\nhttp://www.fileformat.info/info/unicode/char/{0}'.format(uni, i), inline=False)
             await ctx.send(embed=e)
         if not success:
             await ctx.send('\N{HEAVY EXCLAMATION MARK SYMBOL} Either Custom Emote or a unicode symbol!', delete_after=3)
