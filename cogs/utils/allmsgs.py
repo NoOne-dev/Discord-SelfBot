@@ -3,6 +3,7 @@ import mimetypes
 
 from random import randint
 
+# Quick responses without prefix
 def quickcmds(message):
 
     if message == 'shrug':
@@ -19,6 +20,7 @@ def quickcmds(message):
         return None
 
 
+# Cumstom Commands with prefix
 def custom(prefix, content):
 
     message = content.lower().replace(prefix, '')

@@ -92,6 +92,7 @@ class Mal:
             e.set_footer(text='Published: {} - {}'.format(start, end))
         return e
 
+    # MyAnimelist Anime
     @commands.command()
     async def anime(self, ctx, *, query):
         await ctx.message.delete()
@@ -115,6 +116,7 @@ class Mal:
                     await ctx.send('Error!, Embed might have failed you', delete_after=3)
                 await se.delete()
 
+    # MyAnimelist Manga
     @commands.command()
     async def manga(self, ctx, *, query):
         await ctx.message.delete()

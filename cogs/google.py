@@ -175,6 +175,7 @@ class Google:
                 entries.append(url)
         return card, entries
 
+    # Google Command
     @commands.command(aliases=['google'])
     async def g(self, ctx, *, query):
         await ctx.message.delete()
@@ -199,6 +200,7 @@ class Google:
                 msg = entries[0]
             await ctx.send(msg)
 
+    # Google Image Search (100 per day)
     @commands.command()
     async def i(self, ctx, *, query):
         await ctx.message.delete()
