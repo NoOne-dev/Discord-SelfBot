@@ -1,7 +1,6 @@
 import discord
 import datetime
 import logging
-import re
 import unicodedata
 
 from discord import utils
@@ -174,22 +173,29 @@ class Userinfo:
     async def emote(self, ctx, emote: str):
         await ctx.message.delete()
         success = False
-        if re.sub("[^0-9]", "", emote).isdigit():
-            emo = utils.get(self.bot.emojis, id=int(re.sub("[^0-9]", "", emote)))
+        if '>' in emote:
+            emote = emote.replace('<:', '').replace('>', '').split(':')[1]
+            emo = utils.get(self.bot.emojis, id=int(emote))
             if emo:
                 success = True
-                e = discord.Embed(title='Custom Emote{}'.format(emo), description='**Server: **{}'.format(emo.guild.name), colour=0x9b59b6)
+                date = emo.created_at.__format__('%d/%m/%Y')
+                days = int((datetime.datetime.now() - emo.created_at).total_seconds() // (60 * 60 * 24))
+                e = discord.Embed(title='Custom Emote', colour=0x9b59b6)
+                e.description = '**Name: **{1}\n**ID: **{2}\n**Server: **{0}\n**Created at: **{3}, {4} Days ago\n{5}'.format(emo.guild.name, emo.name, emo.id, date, days, emo.url)
                 e.set_thumbnail(url=emo.url)
-                e.add_field(name=emo.name, value=emo.url, inline=False)
                 await ctx.send(embed=e)
         else:
             success = True
             split = '\n'.join(emote).split('\n')
             e = discord.Embed(title='Unicode Emote {}'.format(emote), colour=0x9b59b6)
-            for i in split:
-                uni = format(ord(i), 'x')
-                name = unicodedata.name(i)
-                e.add_field(name=name, value='`\\U{0:>08}` - {1}\nhttp://www.fileformat.info/info/unicode/char/{0}'.format(uni, i), inline=False)
+            desc = ''
+            if len(split) > 1:
+                desc += '**Parts:**\n'
+                for i in split:
+                    desc += '{0} - `\\U{2:>08}` - {1}\nhttp://www.fileformat.info/info/unicode/char/{2}\n'.format(unicodedata.name(i), i, format(ord(i), 'x'))
+            else:
+                desc += '{0} - `\\U{1:>08}`\nhttp://www.fileformat.info/info/unicode/char/{1}\n'.format(unicodedata.name(split[0]), format(ord(split[0]), 'x'))
+            e.description = desc
             await ctx.send(embed=e)
         if not success:
             await ctx.send('\N{HEAVY EXCLAMATION MARK SYMBOL} Either Custom Emote or a unicode symbol!', delete_after=3)
