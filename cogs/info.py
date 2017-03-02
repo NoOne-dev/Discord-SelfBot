@@ -172,20 +172,17 @@ class Userinfo:
     @commands.command()
     async def emote(self, ctx, emote: str):
         await ctx.message.delete()
-        success = False
-        if '>' in emote:
+        if '>' in emote and '<:' in emote and ':' in emote:
             emote = emote.replace('<:', '').replace('>', '').split(':')[1]
             emo = utils.get(self.bot.emojis, id=int(emote))
             if emo:
-                success = True
                 date = emo.created_at.__format__('%d/%m/%Y')
                 days = int((datetime.datetime.now() - emo.created_at).total_seconds() // (60 * 60 * 24))
                 e = discord.Embed(title='Custom Emote', colour=0x9b59b6)
-                e.description = '**Name: **{1}\n**ID: **{2}\n**Server: **{0}\n**Created at: **{3}, {4} Days ago\n{5}'.format(emo.guild.name, emo.name, emo.id, date, days, emo.url)
+                e.description = '**Name: **{1}\n**ID: **{2}\n**Server: **{0}\n**Created at: **{3}, {4} Days ago\n**Image: **[link]({5})'.format(emo.guild.name, emo.name, emo.id, date, days, emo.url)
                 e.set_thumbnail(url=emo.url)
                 await ctx.send(embed=e)
         else:
-            success = True
             split = '\n'.join(emote).split('\n')
             e = discord.Embed(title='Unicode Emote {}'.format(emote), colour=0x9b59b6)
             desc = ''
@@ -196,9 +193,10 @@ class Userinfo:
             else:
                 desc += '{0} - `\\U{1:>08}`\nhttp://www.fileformat.info/info/unicode/char/{1}\n'.format(unicodedata.name(split[0]), format(ord(split[0]), 'x'))
             e.description = desc
-            await ctx.send(embed=e)
-        if not success:
-            await ctx.send('\N{HEAVY EXCLAMATION MARK SYMBOL} Either Custom Emote or a unicode symbol!', delete_after=3)
+            if len(emote) > 20:
+                await ctx.send(content='\N{HEAVY EXCLAMATION MARK SYMBOL} Come on, only 20 chars...', delete_after=3)
+            else:
+                await ctx.send(embed=e)
 
 
 def setup(bot):
