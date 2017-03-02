@@ -131,6 +131,27 @@ class Misc:
             await ctx.send("Error.")
         await ctx.message.delete()
 
+    @commands.command()
+    async def gif(self, ctx, *text):
+        if text:
+            if len(text[0]) > 1 and len(text[0]) < 20:
+                try:
+                    msg = "+".join(text)
+                    search = "http://api.giphy.com/v1/gifs/search?q=" + msg + "&api_key=dc6zaTOxFJmzC"
+                    async with aiohttp.get(search) as r:
+                        result = await r.json()
+                    if result["data"] != []:
+                        url = result["data"]["url"]
+                        await ctx.send(url)
+                    else:
+                        await ctx.send("Your search terms gave no results.")
+                except:
+                    await ctx.send("Error.")
+            else:
+                await ctx.send("Invalid search.")
+        else:
+            await ctx.send("\N{HEAVY EXCLAMATION MARK SYMBOL} Specify Search")
+
 
 def setup(bot):
     bot.add_cog(Misc(bot))
