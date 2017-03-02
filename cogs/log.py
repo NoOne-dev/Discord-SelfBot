@@ -107,7 +107,34 @@ class Logging:
         if msg5 is not '':
             em.add_field(name="Blocked Words", value=msg5[:-2])
         if msg is not '':
-            em.add_field(name="Blocked Guilds[%s]" % guildcount, value=msg[:-2], inline=False)
+            if len(msg) < 1024:
+                log.info(len(msg))
+                em.add_field(name="Blocked Guilds[%s]" % guildcount, value=msg[:-2], inline=False)
+            else:
+                msg = msg.split(', ')
+                send = ''
+                temp = []
+                first = True
+                count = 1
+                for i in msg:
+                    if len(send + i + ', ') < 1024:
+                        if count == len(msg):
+                            send += i + ', '
+                            temp.append(send)
+                        else:
+                            send += i + ', '
+                            count += 1
+                    else:
+                        temp.append(send)
+                        send = i + ', '
+                        count += 1
+                for x in temp:
+                    if first:
+                        first = False
+                        em.add_field(name="Blocked Guilds[%s]" % guildcount, value=x[:-2], inline=False)
+                    else:
+                        log.info('8')
+                        em.add_field(name=u"\u2063", value=x[:-2], inline=False)
         if msg2 is not '':
             em.add_field(name="Blocked Users[%s]" % usercount, value=msg2[:-2], inline=False)
         if msg3 is not '':
