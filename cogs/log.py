@@ -1,7 +1,11 @@
 import discord
+import logging
+
 from discord.ext import commands
 from .utils import config
 from .utils.checks import getUser, perms
+
+log = logging.getLogger('LOG')
 
 
 class Logging:
@@ -198,6 +202,30 @@ class Logging:
             users.append(user.id)
             await self.logging.put('block-user', users)
             await ctx.send('\N{HEAVY CHECK MARK} Added %s with ID ``%s`` to blacklist' % (ctx.message.guild.get_member(user.id), user.id),  delete_after=5)
+
+    # Automatically remove channel and guilds from blacklist on leave
+    async def on_guild_remove(self, guild):
+        log.info('Left Guild "{}" '.format(guild.name))
+        guilds = self.logging.get('block-guild', [])
+        if guild.id in guilds:
+            guilds.remove(guild.id)
+            await self.logging.put('block-guild', guilds)
+            log.info('Removed Guild "{}" on leave from blacklist'.format(guild.name))
+        channels = self.logging.get('block-channel', [])
+        for channel in guild.channels:
+            if channel.id in channels:
+                channels.remove(channel.id)
+                await self.logging.put('block-channel', channels)
+                log.info('Removed Channel "{}" in Guild "{}" on leave from blacklist'.format(channel.name, guild.name))
+
+    # Automatically add guilds to blacklist on join
+    async def on_guild_join(self, guild):
+        log.info('Joined Guild "{}" '.format(guild.name))
+        guilds = self.logging.get('block-guild', [])
+        if guild.id not in guilds:
+            guilds.append(guild.id)
+            await self.logging.put('block-guild', guilds)
+            log.info('Added Guild "{}" on join to blacklist'.format(guild.name))
 
 
 def setup(bot):
