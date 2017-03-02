@@ -5,6 +5,7 @@ import inspect
 import os
 import platform
 import psutil
+import pytz
 
 from .utils.checks import getUser, me, perms
 from .utils import config
@@ -218,7 +219,13 @@ class Tools:
             await ctx.send(python.format(code, '>>> %s' % type(e).__name__ + ': ' + str(e)))
             return
         if len(str(code) + '>>> Output:' + str(result)) > 2000:
-            await ctx.send('\N{HEAVY EXCLAMATION MARK SYMBOL} Content too big to be printed.')
+            time = datetime.datetime.now(pytz.timezone('CET'))
+            result_file = 'result_%s_at_%s.txt' % (time.strftime('%x').replace('/', '_'), time.strftime('%X').replace(':', '_'))
+            with open(result_file, 'w') as file:
+                file.write(str(result))
+            with open(result_file, 'rb') as file:
+                await ctx.send(python.format(code, '>>> Output: See attached file!'), file=file)
+            os.remove(result_file)
         else:
             await ctx.send(python.format(code, '>>> Output: %s' % result))
 

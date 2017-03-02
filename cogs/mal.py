@@ -1,6 +1,5 @@
 import aiohttp
 import discord
-import logging
 import spice_api as spice
 
 from bs4 import BeautifulSoup
@@ -9,8 +8,6 @@ from lxml import etree
 from urllib.parse import parse_qs
 from .utils import config
 from .utils.checks import perms
-
-log = logging.getLogger('LOG')
 
 
 class Mal:
