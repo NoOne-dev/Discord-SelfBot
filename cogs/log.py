@@ -76,53 +76,29 @@ class Logging:
     @log.command()
     async def show(self, ctx):
         await ctx.message.delete()
-        msg = ''
-        guildcount = 0
-        msg2 = ''
-        usercount = 0
-        msg3 = ''
-        channelcount = 0
-        msg4 = ''
-        msg5 = ''
-        names = []
-        for i in self.logging.get('key', {}):
-            msg4 += i + ', '
-        for y in self.logging.get('key-blocked', {}):
-            msg5 += y + ', '
-        for i in self.logging.get('block-guild', {}):
-            a = self.bot.get_guild(i)
-            msg += str(a) + ', '
-            guildcount += 1
-        for i in self.bot.guilds:
-            for j in self.logging.get('block-user', {}):
-                name = i.get_member(j)
-                if name:
-                    if name.name not in names:
-                        names.append(name.name)
-                        msg2 += str(name) + ', '
-                        usercount += 1
-        for i in self.logging.get('block-channel', {}):
-            a = self.bot.get_channel(i)
-            msg3 += str(a) + ', '
-            channelcount += 1
         em = discord.Embed(title='Logging Info', colour=0x9b59b6)
-        if msg4 is not '':
-            em.add_field(name="Logged Words", value=msg4[:-2])
-        if msg5 is not '':
-            em.add_field(name="Blocked Words", value=msg5[:-2])
-        if msg is not '':
-            if len(msg) < 1024:
-                log.info(len(msg))
-                em.add_field(name="Blocked Guilds[%s]" % guildcount, value=msg[:-2], inline=False)
+
+        keys = ', '.join(self.logging.get('key', {}))
+        if keys is not '':
+            em.add_field(name="Logged Words[%s] " % len(self.logging.get('key', {})), value=keys)
+
+        blocked = ', '.join(self.logging.get('key-blocked', {}))
+        if blocked is not '':
+            em.add_field(name="Blocked Words[%s] " % len(self.logging.get('key-blocked', {})), value=blocked)
+
+        guilds = ', '.join(str(self.bot.get_guild(i)) for i in self.logging.get('block-guild', {}))
+        # I should rework that shit sometime
+        if guilds is not '':
+            if len(guilds) < 1024:
+                em.add_field(name="Blocked Guilds[%s]" % len(self.logging.get('block-guild', {})), value=guilds, inline=False)
             else:
-                msg = msg.split(', ')
-                send = ''
                 temp = []
                 first = True
                 count = 1
-                for i in msg:
+                send = ''
+                for i in guilds.split(', '):
                     if len(send + i + ', ') < 1024:
-                        if count == len(msg):
+                        if count == len(guilds.split(', ')):
                             send += i + ', '
                             temp.append(send)
                         else:
@@ -135,14 +111,18 @@ class Logging:
                 for x in temp:
                     if first:
                         first = False
-                        em.add_field(name="Blocked Guilds[%s]" % guildcount, value=x[:-2], inline=False)
+                        em.add_field(name="Blocked Guilds[%s]" % len(self.logging.get('block-guild', {})), value=x[:-2], inline=False)
                     else:
-                        log.info('8')
                         em.add_field(name=u"\u2063", value=x[:-2], inline=False)
-        if msg2 is not '':
-            em.add_field(name="Blocked Users[%s]" % usercount, value=msg2[:-2], inline=False)
-        if msg3 is not '':
-            em.add_field(name="Blocked Channels[%s]" % channelcount, value=msg3[:-2], inline=False)
+
+        users = ', '.join(str(u) for u in self.bot.users if u.id in self.logging.get('block-user', {}))
+        if users is not '':
+            em.add_field(name="Blocked Users[%s]" % len(self.logging.get('block-user', {})), value=users, inline=False)
+
+        channel = ', '.join(str(self.bot.get_channel(i)) for i in self.logging.get('block-channel', {}))
+        if channel is not '':
+            em.add_field(name="Blocked Channels[%s]" % len(self.logging.get('block-channel', {})), value=channel, inline=False)
+
         if perms(ctx.message):
             await ctx.send(embed=em, delete_after=20)
         else:
