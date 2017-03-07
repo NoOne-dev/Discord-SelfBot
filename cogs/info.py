@@ -16,38 +16,38 @@ class Userinfo:
         self.bot = bot
 
     # User info on Server
-    @commands.command(no_pm=True)
+    @commands.command()
     async def info(self, ctx):
         pre = len(ctx.prefix + ctx.command.qualified_name + ' ')
-        mem = getUser(ctx.message, ctx.message.content[pre:])
+        mem = getUser(ctx, ctx.message.content[pre:])
         if mem:
-            rolelist = rolelist = ', '.join(r.name for r in mem.roles)
-            guildlist = '﻿'
-            guildcount = 0
-            for guild in self.bot.guilds:
-                if guild.get_member(mem.id):
-                    guildlist += ', %s' % guild.name
-                    guildcount += 1
             if not mem.bot:
                 rel = str(mem.relationship.type)[17:].title() if mem.relationship is not None else None
                 pro = await mem.profile()
                 nitro = pro.premium_since.__format__('Since: %d/%m/%Y') if pro.premium is True else None
-            em = discord.Embed(timestamp=ctx.message.created_at, colour=mem.colour)
-            if mem.game is not None:
-                em = discord.Embed(description='Playing **%s**' % mem.game, timestamp=ctx.message.created_at, colour=mem.colour)
+            em = discord.Embed(timestamp=ctx.message.created_at)
+            em.colour = mem.colour if ctx.guild else 0x9b59b6
             em.add_field(name='User ID', value=mem.id, inline=True)
-            em.add_field(name='Status', value=mem.status, inline=True)
-            em.add_field(name='Nick', value=mem.nick, inline=True)
-            em.add_field(name='In Voice', value=mem.voice,  inline=True)
+            if ctx.guild:
+                if mem.game:
+                    em.description = 'Playing **%s**' % mem.game
+                em.add_field(name='Status', value=mem.status, inline=True)
+            if ctx.guild:
+                em.add_field(name='Nick', value=mem.nick, inline=True)
+                em.add_field(name='In Voice', value=mem.voice,  inline=True)
             if not mem.bot:
                 em.add_field(name='Partnership', value=rel,  inline=True)
                 em.add_field(name='Nitro', value=nitro,  inline=True)
             em.add_field(name='Account Created', value='%s, %s Days' % (mem.created_at.__format__('%d/%m/%Y'), int((datetime.datetime.now() - mem.created_at).total_seconds() // (60 * 60 * 24))), inline=True)
-            em.add_field(name='Join Date', value='%s, %s Days' % (mem.joined_at.__format__('%d/%m/%Y'), int((datetime.datetime.now() - mem.joined_at).total_seconds() // (60 * 60 * 24))), inline=True)
-            if rolelist[11:] is not '':
-                em.add_field(name='Roles [%s]' % (len(mem.roles)-1), value=rolelist[11:], inline=True)
-            if (mem.id is not ctx.message.author.id) and guildlist[2:] is not '':
-                em.add_field(name='Shared Guilds [%s]' % guildcount, value='%s' % guildlist[2:], inline=True)
+            if ctx.guild:
+                em.add_field(name='Join Date', value='%s, %s Days' % (mem.joined_at.__format__('%d/%m/%Y'), int((datetime.datetime.now() - mem.joined_at).total_seconds() // (60 * 60 * 24))), inline=True)
+            if ctx.guild:
+                rolelist = ', '.join(r.name for r in mem.roles)
+                if rolelist[11:]:
+                    em.add_field(name='Roles [%s]' % (len(mem.roles)-1), value=rolelist[11:], inline=True)
+            guildlist = ', '.join(g.name for g in self.bot.guilds if g.get_member(mem.id))
+            if (mem.id is not ctx.message.author.id) and guildlist:
+                em.add_field(name='Shared Guilds [%s]' % len(guildlist.split(',')), value='%s' % guildlist, inline=True)
             em.set_thumbnail(url=mem.avatar_url)
             em.set_author(name=mem, icon_url='https://i.imgur.com/RHagTDg.png')
             await ctx.message.delete()
@@ -63,13 +63,10 @@ class Userinfo:
     @commands.command()
     async def avi(self, ctx):
         pre = len(ctx.prefix + ctx.command.qualified_name + ' ')
-        mem = getUser(ctx.message, ctx.message.content[pre:])
+        mem = getUser(ctx, ctx.message.content[pre:])
         if mem is not None:
             em = discord.Embed(timestamp=ctx.message.created_at)
-            if ctx.guild:
-                em.colour = mem.colour
-            else:
-                em.colour = 0x9b59b6
+            em.colour = mem.colour if ctx.guild else 0x9b59b6
             em.set_image(url=mem.avatar_url)
             em.set_author(name=mem, icon_url='https://i.imgur.com/RHagTDg.png')
             await ctx.message.delete()

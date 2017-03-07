@@ -27,18 +27,23 @@ def hasPassed(bot, oldtime):
 
 
 # Find User on server
-def getUser(message, msg):
+def getUser(ctx, msg):
     if '' is msg:
-        return message.author
-    elif 1 == len(message.mentions):
-        return message.mentions[0]
-    elif message.guild.get_member_named(msg) is not None:
-        return message.guild.get_member_named(msg)
-    elif utils.find(lambda m: msg.lower() in m.name.lower(), message.guild.members) is not None:
-        return utils.find(lambda m: msg.lower() in m.name.lower(), message.guild.members)
+        return ctx.message.author
+    elif not ctx.guild:
+        if utils.find(lambda m: msg.lower() in m.name.lower(), ctx.bot.users):
+            return utils.find(lambda m: msg.lower() in m.name.lower(), ctx.bot.users)
+        elif 1 == len(ctx.message.mentions):
+            return ctx.message.mentions[0]
+    elif 1 == len(ctx.message.mentions):
+        return ctx.message.mentions[0]
+    elif ctx.message.guild.get_member_named(msg):
+        return ctx.message.guild.get_member_named(msg)
+    elif utils.find(lambda m: msg.lower() in m.name.lower(), ctx.message.guild.members):
+        return utils.find(lambda m: msg.lower() in m.name.lower(), ctx.message.guild.members)
     else:
-        for member in message.guild.members:
-            if member.nick is not None:
+        for member in ctx.message.guild.members:
+            if member.nick:
                 if msg.lower() in member.nick.lower():
                     return member
                     break
