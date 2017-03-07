@@ -47,8 +47,8 @@ class Cogs:
 
     # Reloads a module.
     @commands.command()
-    async def reload(self, ctx):
-        if ctx.message.content[7:] is '':
+    async def reload(self, ctx, module: str = None):
+        if not module:
             utils = []
             for i in self.bot.extensions:
                 utils.append(i)
@@ -70,17 +70,17 @@ class Cogs:
             await ctx.message.delete()
         else:
             try:
-                self.bot.unload_extension(ctx.message.content[7:].strip())
-                self.bot.load_extension(ctx.message.content[7:].strip())
+                self.bot.unload_extension(module)
+                self.bot.load_extension(module)
             except Exception as e:
                 await ctx.message.delete()
                 await ctx.send('Not reloading', delete_after=5)
                 await ctx.send('``{}: {}``'.format(type(e).__name__, e), delete_after=5)
-                log.error('Reloading {} failed!\n{}: {}'.format(ctx.message.content[7:].strip(), type(e).__name__, e))
+                log.error('Reloading {} failed!\n{}: {}'.format(module, type(e).__name__, e))
             else:
                 await ctx.message.delete()
-                await ctx.send('Reloaded %s' % ctx.message.content[7:].strip(), delete_after=5)
-                log.info('Reloaded %s' % ctx.message.content[7:].strip())
+                await ctx.send('Reloaded %s' % module, delete_after=5)
+                log.info('Reloaded %s' % module)
 
     # Shutdown Bot
     @commands.command()

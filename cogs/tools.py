@@ -75,12 +75,11 @@ class Tools:
         unique_online = sum(1 for m in unique_members if m.status != discord.Status.offline)
         voice = 0
         text = 0
-        for guild in self.bot.guilds:
-            for channel in guild.channels:
-                if isinstance(channel, discord.VoiceChannel):
-                    voice += 1
-                elif isinstance(channel, discord.TextChannel):
-                    text += 1
+        for channel in self.bot.get_all_channels():
+            if isinstance(channel, discord.VoiceChannel):
+                voice += 1
+            elif isinstance(channel, discord.TextChannel):
+                text += 1
         alll = text+voice
         delta = datetime.datetime.now() - self.bot.uptime
         hours, remainder = divmod(int(delta.total_seconds()), 3600)
@@ -138,9 +137,6 @@ class Tools:
     # Change Gamestatus - blank is no game
     @commands.command()
     async def game(self, ctx):
-        """
-        Changes Gamestatus
-        """
         await self.config.put('gamestatus', ctx.message.content[6:])
         await ctx.message.delete()
         await self.bot.change_presence(game=discord.Game(name=self.config.get('gamestatus', [])), status='invisible', afk=True)
@@ -149,10 +145,11 @@ class Tools:
     # Find message with specific Text in Channel History...    Search Term(s) | Text
     @commands.command()
     async def quote(self, ctx):
-        search = ctx.message.content[7:]
+        pre = len(ctx.prefix + ctx.command.qualified_name + ' ')
+        search = ctx.message.content[pre:]
         content = ' '
-        if '|' in ctx.message.content[7:]:
-            msg = ctx.message.content[7:].split(" | ")
+        if '|' in ctx.message.content[pre:]:
+            msg = ctx.message.content[pre:].split(" | ")
             search = msg[0]
             content = msg[1]
         async for message in ctx.message.channel.history(limit=500):
