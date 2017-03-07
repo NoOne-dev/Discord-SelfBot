@@ -170,7 +170,7 @@ class Logging:
     async def user(self, ctx, msg: str):
         await ctx.message.delete()
         users = self.logging.get('block-user', {})
-        user = getUser(ctx.message, msg)
+        user = getUser(ctx, msg)
         if not user:
             await ctx.send('\N{HEAVY EXCLAMATION MARK SYMBOL} User not found',  delete_after=5)
             return

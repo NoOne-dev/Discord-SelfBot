@@ -54,7 +54,8 @@ class Mal:
             return content, link
 
     async def parse_content(self, i, link, _type):
-        mal = spice.search_id(int(i), spice.get_medium(_type), spice.init_auth(self.config.get('mal_username', {}), self.config.get('mal_password', {})))
+        creds = spice.init_auth(self.config.get('mal_username', []), self.config.get('mal_password', []))
+        mal = spice.search_id(int(i), spice.get_medium(_type), creds)
         synopsis = BeautifulSoup(mal.synopsis, 'lxml').get_text().replace('[i]', '').replace('[/i]', '')
         synnew = ''
         for i in synopsis.split('.'):
