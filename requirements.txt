@@ -1,6 +1,6 @@
 aiohttp == 1.0.5
 beautifulsoup4 == 4.5.1
-# discord.py == 1.0.0a0 #REWRITE - Install pip install git+https://github.com/Rapptz/discord.py@rewrite
+git+https://github.com/Rapptz/discord.py@rewrite
 lxml == 3.7.3
 psutil == 5.1.0
 spice_api == 1.0.4
