@@ -88,11 +88,8 @@ class Userinfo:
         else:
             role = utils.find(lambda r: ctx.message.content[pre:].strip().lower() in r.name.lower(), ctx.message.guild.roles)
         if role is not None:
-            onlineuser = 0
             roleuser = len(role.members)
-            for m in role.members:
-                if str(m.status) != 'offline':
-                    onlineuser += 1
+            onlineuser = sum(1 for m in role.members if m.status != discord.Status.offline)
             em = discord.Embed(timestamp=ctx.message.created_at, colour=role.colour)
             em.add_field(name='Name', value=role.name, inline=True)
             em.add_field(name='ID', value=role.id, inline=True)
@@ -115,10 +112,7 @@ class Userinfo:
     async def guild(self, ctx):
         serv = ctx.message.guild
         rolelist = ', '.join(r.name for r in serv.role_hierarchy)
-        onlineuser = 0
-        for m in serv.members:
-            if str(m.status) != 'offline':
-                onlineuser += 1
+        onlineuser = sum(1 for m in serv.members if m.status != discord.Status.offline)
         em = discord.Embed(timestamp=ctx.message.created_at, colour=ctx.message.author.colour)
         em.set_author(name=serv.name, icon_url='https://i.imgur.com/RHagTDg.png')
         em.set_thumbnail(url=serv.icon_url)

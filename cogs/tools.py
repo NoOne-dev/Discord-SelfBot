@@ -73,13 +73,8 @@ class Tools:
     async def stats(self, ctx):
         unique_members = set(self.bot.get_all_members())
         unique_online = sum(1 for m in unique_members if m.status != discord.Status.offline)
-        voice = 0
-        text = 0
-        for channel in self.bot.get_all_channels():
-            if isinstance(channel, discord.VoiceChannel):
-                voice += 1
-            elif isinstance(channel, discord.TextChannel):
-                text += 1
+        voice = sum(len(g.voice_channels) for g in self.bot.guilds)
+        text = sum(len(g.text_channels) for g in self.bot.guilds)
         alll = text+voice
         delta = datetime.datetime.now() - self.bot.uptime
         hours, remainder = divmod(int(delta.total_seconds()), 3600)
