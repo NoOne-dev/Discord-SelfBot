@@ -26,9 +26,9 @@ def custom(prefix, content):
     message = content.lower().replace(prefix, '')
     success = False
 
-    with open('cogs/utils/config.json') as f:
+    with open('config/config.json') as f:
         config = json.load(f)
-        with open('cogs/utils/commands.json', 'r') as f:
+        with open('config/commands.json', 'r') as f:
             commands = json.load(f)
         for i in commands:
             if i.lower() in message.split():

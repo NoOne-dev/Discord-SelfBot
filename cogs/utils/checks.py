@@ -4,7 +4,7 @@ import time
 from discord import utils
 
 
-with open('cogs/utils/config.json', 'r') as f:
+with open('config/config.json', 'r') as f:
     config = json.load(f)
 
 

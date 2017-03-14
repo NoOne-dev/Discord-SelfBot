@@ -18,7 +18,7 @@ class Customcmds:
     async def cmds(self, ctx):
         if ctx.invoked_subcommand is None:
             p = commands.Paginator(prefix='```css')
-            with open('cogs/utils/commands.json', 'r') as com:
+            with open('config/commands.json', 'r') as com:
                 cmds = json.load(com)
             p.add_line('[List of Custom Commands]')
             for cmd in cmds:
@@ -38,7 +38,7 @@ class Customcmds:
     @cmds.command()
     async def long(self, ctx):
         p = commands.Paginator(prefix='```json\n{', suffix='}```')
-        with open('cogs/utils/commands.json', 'r') as com:
+        with open('config/commands.json', 'r') as com:
             cmds = json.load(com)
         p.add_line('"List of Custom Commands" :"",')
         p.add_line(empty=True)
@@ -61,7 +61,7 @@ class Customcmds:
     async def add(self, ctx, *, msg: str):
         words = msg.strip()
 
-        with open('cogs/utils/commands.json', 'r') as commands:
+        with open('config/commands.json', 'r') as commands:
             cmds = json.load(commands)
             save = cmds
 
@@ -113,13 +113,13 @@ class Customcmds:
             msg = await ctx.send('Successfully added ``%s`` to ``%s``' % (entry[1], entry[0]))
 
         except Exception as e:
-            with open('cogs/utils/commands.json', 'w') as commands:
+            with open('config/commands.json', 'w') as commands:
                 commands.truncate()
                 json.dump(save, commands, indent=4)
             msg = await ctx.send('Error, seomthing went wrong. Exception: ``%s``' % e)
 
         # Update commands.json
-        with open('cogs/utils/commands.json', 'w') as commands:
+        with open('config/commands.json', 'w') as commands:
             commands.truncate()
             json.dump(cmds, commands, indent=4)
         await ctx.message.delete()
@@ -131,7 +131,7 @@ class Customcmds:
     async def remove(self, ctx, *, msg: str):
         words = msg.strip()
 
-        with open('cogs/utils/commands.json', 'r') as commands:
+        with open('config/commands.json', 'r') as commands:
             cmds = json.load(commands)
             save = cmds
 
@@ -199,13 +199,13 @@ class Customcmds:
                 msg = await ctx.send('Could not find specified command.')
 
         except Exception as e:
-            with open('cogs/utils/commands.json', 'w') as commands:
+            with open('config/commands.json', 'w') as commands:
                 commands.truncate()
                 json.dump(save, commands, indent=4)
             msg = await ctx.send('Error, something went wrong. Exception: ``%s``' % e)
 
         # Update commands.json
-        with open('cogs/utils/commands.json', 'w') as commands:
+        with open('config/commands.json', 'w') as commands:
             commands.truncate()
             json.dump(cmds, commands, indent=4)
         await ctx.message.delete()

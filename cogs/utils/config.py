@@ -20,7 +20,7 @@ class Config:
 
     def load_from_file(self):
         try:
-            with open('cogs/utils/'+self.name, 'r') as f:
+            with open('config/'+self.name, 'r') as f:
                 self._db = json.load(f, object_hook=self.object_hook)
         except FileNotFoundError:
             self._db = {}
@@ -31,11 +31,11 @@ class Config:
 
     def _dump(self):
         temp = '%s-%s.tmp' % (uuid.uuid4(), self.name)
-        with open('cogs/utils/'+temp, 'w', encoding='utf-8') as tmp:
+        with open('config/'+temp, 'w', encoding='utf-8') as tmp:
             json.dump(self._db.copy(), tmp, ensure_ascii=True, cls=self.encoder, separators=(',', ':'))
 
         # atomically move the file
-        os.replace('cogs/utils/'+temp, 'cogs/utils/'+self.name)
+        os.replace('config/'+temp, 'config/'+self.name)
 
     async def save(self):
         with await self.lock:
