@@ -27,6 +27,7 @@ log.propagate = False
 
 extensions = ['cogs.cmds',
               'cogs.cogs',
+              'cogs.debug',
               'cogs.google',
               'cogs.info',
               'cogs.log',

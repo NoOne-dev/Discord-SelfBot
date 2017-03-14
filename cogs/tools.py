@@ -1,13 +1,11 @@
 import asyncio
 import datetime
 import discord
-import inspect
 import os
 import platform
 import psutil
-import pytz
 
-from .utils.checks import getUser, me, perms
+from .utils.checks import me, perms
 from .utils import config
 from discord.ext import commands
 
@@ -17,7 +15,6 @@ class Tools:
     def __init__(self, bot):
         self.bot = bot
         self.config = config.Config('config.json')
-        self.logging = config.Config('log.json')
 
     # Command usage stats
     @commands.command()
@@ -182,44 +179,6 @@ class Tools:
                     await asyncio.sleep(0.25)
                     msg_amt += 1
         await ctx.send('Cleaned `{}` messages out of `{}` that were checked.'.format(msg_amt, limit), delete_after=3)
-
-    # DEBUG
-    @commands.command()
-    async def debug(self, ctx, *, code: str):
-        await ctx.message.delete()
-        code = code.strip('` ')
-        python = '```ocaml\n>>> Input: {}\n{}\n```'
-        result = None
-        env = {
-            'bot': self.bot,
-            'say': ctx.send,
-            'ctx': ctx,
-            'message': ctx.message,
-            'guild': ctx.message.guild,
-            'server': ctx.message.guild,
-            'channel': ctx.message.channel,
-            'author': ctx.message.author,
-            'self': self,
-            'user': getUser
-            }
-        env.update(globals())
-        try:
-            result = eval(code, env)
-            if inspect.isawaitable(result):
-                result = await result
-        except Exception as e:
-            await ctx.send(python.format(code, '>>> %s' % type(e).__name__ + ': ' + str(e)))
-            return
-        if len(str(code) + '>>> Output:' + str(result)) > 2000:
-            time = datetime.datetime.now(pytz.timezone('CET'))
-            result_file = 'result_%s_at_%s.txt' % (time.strftime('%x').replace('/', '_'), time.strftime('%X').replace(':', '_'))
-            with open(result_file, 'w') as file:
-                file.write(str(result))
-            with open(result_file, 'rb') as file:
-                await ctx.send(python.format(code, '>>> Output: See attached file!'), file=file)
-            os.remove(result_file)
-        else:
-            await ctx.send(python.format(code, '>>> Output: %s' % result))
 
 
 def setup(bot):
