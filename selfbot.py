@@ -44,8 +44,7 @@ bot = commands.Bot(command_prefix=config.get('prefix', []), description='''Selfb
 async def on_ready():
     log.info('------')
     log.info('Logged in as')
-    log.info(bot.user.name)
-    log.info(bot.user.id)
+    log.info(str(bot.user) + '(' + str(bot.user.id) + ')')
     log.info('------')
     bot.uptime = datetime.datetime.now()
     bot.message_count = 0

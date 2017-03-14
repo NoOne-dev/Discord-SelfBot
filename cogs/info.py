@@ -5,7 +5,7 @@ import unicodedata
 
 from discord import utils
 from discord.ext import commands
-from .utils.checks import getUser, perms
+from .utils.checks import getInvoke, getUser, perms
 
 log = logging.getLogger('LOG')
 
@@ -17,14 +17,13 @@ class Userinfo:
 
     # User info on Server
     @commands.command()
-    async def info(self, ctx):
-        pre = len(ctx.prefix + ctx.command.qualified_name + ' ')
-        mem = getUser(ctx, ctx.message.content[pre:])
+    async def user(self, ctx):
+        mem = getUser(ctx, ctx.message.content[getInvoke(ctx):])
         if mem:
             if not mem.bot:
                 rel = str(mem.relationship.type)[17:].title() if mem.relationship is not None else None
-                # pro = await mem.profile()
-                # nitro = pro.premium_since.__format__('Since: %d/%m/%Y') if pro.premium is True else None
+                pro = await mem.profile()
+                nitro = pro.premium_since.__format__('Since: %d/%m/%Y') if pro.premium is True else None
             em = discord.Embed(timestamp=ctx.message.created_at)
             em.colour = mem.colour if ctx.guild else 0x9b59b6
             em.add_field(name='User ID', value=mem.id, inline=True)
@@ -37,7 +36,7 @@ class Userinfo:
                 em.add_field(name='In Voice', value=mem.voice,  inline=True)
             if not mem.bot:
                 em.add_field(name='Partnership', value=rel,  inline=True)
-                # em.add_field(name='Nitro', value=nitro,  inline=True)
+                em.add_field(name='Nitro', value=nitro,  inline=True)
             em.add_field(name='Account Created', value='%s, %s Days' % (mem.created_at.__format__('%d/%m/%Y'), int((datetime.datetime.now() - mem.created_at).total_seconds() // (60 * 60 * 24))), inline=True)
             if ctx.guild:
                 em.add_field(name='Join Date', value='%s, %s Days' % (mem.joined_at.__format__('%d/%m/%Y'), int((datetime.datetime.now() - mem.joined_at).total_seconds() // (60 * 60 * 24))), inline=True)
@@ -62,8 +61,7 @@ class Userinfo:
     # User Avi on Server
     @commands.command()
     async def avi(self, ctx):
-        pre = len(ctx.prefix + ctx.command.qualified_name + ' ')
-        mem = getUser(ctx, ctx.message.content[pre:])
+        mem = getUser(ctx, ctx.message.content[getInvoke(ctx):])
         if mem is not None:
             em = discord.Embed(timestamp=ctx.message.created_at)
             em.colour = mem.colour if ctx.guild else 0x9b59b6

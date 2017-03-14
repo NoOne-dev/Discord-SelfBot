@@ -26,6 +26,10 @@ def hasPassed(bot, oldtime):
     return True
 
 
+def getInvoke(ctx):
+    return len(ctx.prefix + ctx.command.qualified_name + ' ')
+
+
 # Find User on server
 def getUser(ctx, msg):
     if '' is msg:
