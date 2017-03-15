@@ -6,7 +6,7 @@ from discord.ext import commands
 from lxml import etree
 from urllib.parse import parse_qs
 from .utils import config
-from .utils.checks import perms
+from .utils.checks import permEmbed, send
 
 
 class Google:
@@ -178,41 +178,38 @@ class Google:
     # Google Command
     @commands.command(aliases=['google'])
     async def g(self, ctx, *, query):
-        await ctx.message.delete()
         try:
             card, entries = await self.get_google_entries(query)
         except RuntimeError as e:
-            await ctx.send(str(e), delete_after=3)
+            await send(ctx, content=str(e), ttl=3)
         else:
             if card:
                 value = '\n'.join(entries[:3])
                 if value:
                     card.add_field(name='Search Results', value=value, inline=False)
-                if perms(ctx.message):
-                    return await ctx.send(embed=card)
+                return await send(ctx, embed=card)
             if len(entries) == 0:
-                return await ctx.send('No results found... sorry.', delete_after=3)
+                return await send(ctx, content='No results found... sorry.', ttl=3)
             next_two = entries[1:3]
             if next_two:
                 formatted = '\n'.join(map(lambda x: '<%s>' % x, next_two))
                 msg = '{}\n\n**See also:**\n{}'.format(entries[0], formatted)
             else:
                 msg = entries[0]
-            await ctx.send(msg)
+            await send(ctx, content=msg)
 
     # Google Image Search (100 per day)
     @commands.command()
     async def i(self, ctx, *, query):
-        await ctx.message.delete()
         async with aiohttp.get("https://www.googleapis.com/customsearch/v1?q=" + query.replace(' ', '+') + "&start=" + '1' + "&key=" + self.config.get('google_api_key', []) + "&cx=" + self.config.get('custom_search_engine', []) + "&searchType=image") as resp:
             if resp.status != 200:
-                await ctx.send('Google somehow failed to respond.', delete_after=3)
+                await send(ctx, content='Google somehow failed to respond.', ttl=3)
             result = json.loads(await resp.text())
             em = discord.Embed(colour=0x0057e7)
-            if perms(ctx.message):
-                await ctx.send(content=None, embed=em.set_image(url=result['items'][0]['link']))
+            if permEmbed(ctx.message):
+                await send(ctx, content=None, embed=em.set_image(url=result['items'][0]['link']))
             else:
-                await ctx.send(result['items'][0]['link'])
+                await send(ctx, content=result['items'][0]['link'])
 
 
 def setup(bot):

@@ -7,7 +7,7 @@ from discord.ext import commands
 from lxml import etree
 from urllib.parse import parse_qs
 from .utils import config
-from .utils.checks import perms
+from .utils.checks import permEmbed, send
 
 
 class Mal:
@@ -93,49 +93,47 @@ class Mal:
     # MyAnimelist Anime
     @commands.command()
     async def anime(self, ctx, *, query):
-        await ctx.message.delete()
         se = await ctx.send(content='Searching...')
         try:
             i, link = await self.get_google_entries(query, 'anime')
         except RuntimeError as e:
-            await ctx.send(str(e), delete_after=3)
+            await send(ctx, content=str(e), ttl=3)
         else:
             if (i is None) or (not i.isdigit()):
                 await se.delete()
-                return await ctx.send('No results found... sorry.', delete_after=3)
+                return await send(ctx, content='No results found... sorry.', ttl=3)
             else:
                 em = await self.parse_content(i, link, 'anime')
                 try:
-                    if perms(ctx.message):
-                        await ctx.send(embed=em)
+                    if permEmbed(ctx.message):
+                        await send(ctx, embed=em)
                     else:
-                        await ctx.send(link)
+                        await send(ctx, content=link)
                 except:
-                    await ctx.send('Error!, Embed might have failed you', delete_after=3)
+                    await send(ctx, content='Error!, Embed might have failed you', ttl=3)
                 await se.delete()
 
     # MyAnimelist Manga
     @commands.command()
     async def manga(self, ctx, *, query):
-        await ctx.message.delete()
-        se = await ctx.send(content='Searching...')
+        se = await send(ctx, content='Searching...', delete=False)
         try:
             i, link = await self.get_google_entries(query, 'manga')
         except RuntimeError as e:
-            await ctx.send(str(e), delete_after=3)
+            await send(ctx, content=str(e), ttl=3)
         else:
             if (i is None) or (not i.isdigit()):
                 await se.delete()
-                return await ctx.send('No results found... sorry.', delete_after=3)
+                return await send(ctx, content='No results found... sorry.', ttl=3)
             else:
                 em = await self.parse_content(i, link, 'manga')
                 try:
-                    if perms(ctx.message):
-                        await ctx.send(embed=em)
+                    if permEmbed(ctx.message):
+                        await send(ctx, embed=em)
                     else:
-                        await ctx.send(link)
+                        await send(ctx, content=link)
                 except:
-                    await ctx.send('Error!, Embed might have failed you', delete_after=3)
+                    await send(ctx, content='Error!, Embed might have failed you', ttl=3)
                 await se.delete()
 
 

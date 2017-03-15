@@ -3,7 +3,7 @@ import logging
 
 from discord.ext import commands
 from .utils import config
-from .utils.checks import getUser, perms
+from .utils.checks import getUser, send
 
 log = logging.getLogger('LOG')
 
@@ -19,63 +19,56 @@ class Logging:
     @commands.group()
     async def log(self, ctx):
         if ctx.invoked_subcommand is None:
-            await ctx.message.delete()
-            await ctx.send('\N{HEAVY EXCLAMATION MARK SYMBOL} ``on``, ``off``, ``status``, ``key <word>``, ``block <word>``, ``show``, ``blacklist guild``, ``blacklist channel`` or ``blacklist user <user>``', delete_after=5)
+            await send(ctx, content='\N{HEAVY EXCLAMATION MARK SYMBOL} ``on``, ``off``, ``status``, ``key <word>``, ``block <word>``, ``show``, ``blacklist guild``, ``blacklist channel`` or ``blacklist user <user>``', ttl=5)
 
     # Log On
     @log.command()
     async def on(self, ctx):
         await self.config.put('setlog', 'on')
-        await ctx.message.delete()
-        await ctx.send('\N{HEAVY CHECK MARK} Mention Log set to ``on``', delete_after=3)
+        await send(ctx, content='\N{HEAVY CHECK MARK} Mention Log set to ``on``', ttl=3)
 
     # Log Off
     @log.command()
     async def off(self, ctx):
         await self.config.put('setlog', 'off')
-        await ctx.message.delete()
-        await ctx.send('\N{HEAVY CHECK MARK} Mention Log set to ``off``', delete_after=3)
+        await send(ctx, content='\N{HEAVY CHECK MARK} Mention Log set to ``off``', ttl=3)
 
     # Log Status
     @log.command()
     async def status(self, ctx):
-        await ctx.message.delete()
-        await ctx.send('<:robot:273922151856209923> Mention logging is currently ``%s``' % self.config.get('setlog', []), delete_after=3)
+        await send(ctx, content='<:robot:273922151856209923> Mention logging is currently ``%s``' % self.config.get('setlog', []), ttl=3)
 
     # Add Key-Word to Logger
     @log.command()
     async def key(self, ctx, msg: str):
-        await ctx.message.delete()
         msg = msg.lower()
         keys = self.logging.get('key', {})
         if msg in keys:
             keys.remove(msg)
             await self.logging.put('key', keys)
-            await ctx.send('\N{HEAVY CHECK MARK} Removed Keyword ``%s`` from Logger' % msg,  delete_after=5)
+            await send(ctx, content='\N{HEAVY CHECK MARK} Removed Keyword ``%s`` from Logger' % msg,  ttl=5)
         elif msg not in keys:
             keys.append(msg)
             await self.logging.put('key', keys)
-            await ctx.send('\N{HEAVY CHECK MARK} Added Keyword ``%s`` to Logger' % msg,  delete_after=5)
+            await send(ctx, content='\N{HEAVY CHECK MARK} Added Keyword ``%s`` to Logger' % msg,  ttl=5)
 
     # Add Blocked-Key-Word to Logger
     @log.command()
     async def block(self, ctx, msg: str):
-        await ctx.message.delete()
         msg = msg.lower()
         keys = self.logging.get('key-blocked', {})
         if msg in keys:
             keys.remove(msg)
             await self.logging.put('key-blocked', keys)
-            await ctx.send('\N{HEAVY CHECK MARK} Unblocked ``%s`` from Logger' % msg,  delete_after=5)
+            await send(ctx, content='\N{HEAVY CHECK MARK} Unblocked ``%s`` from Logger' % msg,  ttl=5)
         elif msg not in keys:
             keys.append(msg)
             await self.logging.put('key-blocked', keys)
-            await ctx.send('\N{HEAVY CHECK MARK} Blocked ``%s`` from Logger' % msg,  delete_after=5)
+            await send(ctx, content='\N{HEAVY CHECK MARK} Blocked ``%s`` from Logger' % msg,  ttl=5)
 
     # Show Logging Infosconfig
     @log.command()
     async def show(self, ctx):
-        await ctx.message.delete()
         em = discord.Embed(title='Logging Info', colour=0x9b59b6)
 
         keys = ', '.join(self.logging.get('key', {}))
@@ -87,7 +80,7 @@ class Logging:
             em.add_field(name="Blocked Words[%s] " % len(self.logging.get('key-blocked', {})), value=blocked)
 
         guilds = ', '.join(str(self.bot.get_guild(i)) for i in self.logging.get('block-guild', {}))
-        # I should rework that shit sometime
+        # TODO I should rework that shit sometime # too lazy
         if guilds is not '':
             if len(guilds) < 1024:
                 em.add_field(name="Blocked Guilds[%s]" % len(self.logging.get('block-guild', {})), value=guilds, inline=False)
@@ -123,47 +116,41 @@ class Logging:
         if channel is not '':
             em.add_field(name="Blocked Channels[%s]" % len(self.logging.get('block-channel', {})), value=channel, inline=False)
 
-        if perms(ctx.message):
-            await ctx.send(embed=em, delete_after=20)
-        else:
-            await ctx.send('\N{HEAVY EXCLAMATION MARK SYMBOL} No Perms for Embeds, move to a better Guild!', delete_after=5)
+        await send(ctx, embed=em, ttl=20)
 
     # Blacklist "Help"
     @log.group(no_pm=True)
     async def blacklist(self, ctx):
         if ctx.message.content == '/log blacklist':
-            await ctx.message.delete()
-            await ctx.send('\N{HEAVY EXCLAMATION MARK SYMBOL} Use **FULL** command', delete_after=5)
+            await send(ctx, content='\N{HEAVY EXCLAMATION MARK SYMBOL} Use **FULL** command', ttl=5)
 
     # Blacklist Guild
     @blacklist.command(no_pm=True)
     async def guild(self, ctx):
-        await ctx.message.delete()
         guilds = self.logging.get('block-guild', {})
         guild = ctx.message.guild.id
         if guild in guilds:
             guilds.remove(guild)
             await self.logging.put('block-guild', guilds)
-            await ctx.send('\N{HEAVY CHECK MARK} Removed guild with ID ``%s`` from blacklist' % guild,  delete_after=5)
+            await send(ctx, content='\N{HEAVY CHECK MARK} Removed guild with ID ``%s`` from blacklist' % guild,  ttl=5)
         else:
             guilds.append(guild)
             await self.logging.put('block-guild', guilds)
-            await ctx.send('\N{HEAVY CHECK MARK} Added guild with ID ``%s`` to blacklist' % guild,  delete_after=5)
+            await send(ctx, content='\N{HEAVY CHECK MARK} Added guild with ID ``%s`` to blacklist' % guild,  ttl=5)
 
     # Blacklist Channel
     @blacklist.command(no_pm=True)
     async def channel(self, ctx):
-        await ctx.message.delete()
         channels = self.logging.get('block-channel', {})
         channel = ctx.message.channel.id
         if channel in channels:
             channels.remove(channel)
             await self.logging.put('block-channel', channels)
-            await ctx.send('\N{HEAVY CHECK MARK} Removed Channel with ID ``%s`` from blacklist' % channel,  delete_after=5)
+            await send(ctx, content='\N{HEAVY CHECK MARK} Removed Channel with ID ``%s`` from blacklist' % channel,  ttl=5)
         else:
             channels.append(channel)
             await self.logging.put('block-channel', channels)
-            await ctx.send('\N{HEAVY CHECK MARK} Added Channel with ID ``%s`` to blacklist' % channel,  delete_after=5)
+            await send(ctx, content='\N{HEAVY CHECK MARK} Added Channel with ID ``%s`` to blacklist' % channel,  ttl=5)
 
     # Blacklist user
     @blacklist.command(no_pm=True)
@@ -172,16 +159,16 @@ class Logging:
         users = self.logging.get('block-user', {})
         user = getUser(ctx, msg)
         if not user:
-            await ctx.send('\N{HEAVY EXCLAMATION MARK SYMBOL} User not found',  delete_after=5)
+            await send('\N{HEAVY EXCLAMATION MARK SYMBOL} User not found',  ttl=5)
             return
         if user.id in users:
             users.remove(user.id)
             await self.logging.put('block-user', users)
-            await ctx.send('\N{HEAVY CHECK MARK} Removed %s with ID ``%s`` from blacklist' % (ctx.message.guild.get_member(user.id), user.id),  delete_after=5)
+            await send(ctx, content='\N{HEAVY CHECK MARK} Removed %s with ID ``%s`` from blacklist' % (ctx.message.guild.get_member(user.id), user.id),  ttl=5)
         else:
             users.append(user.id)
             await self.logging.put('block-user', users)
-            await ctx.send('\N{HEAVY CHECK MARK} Added %s with ID ``%s`` to blacklist' % (ctx.message.guild.get_member(user.id), user.id),  delete_after=5)
+            await send(ctx, content='\N{HEAVY CHECK MARK} Added %s with ID ``%s`` to blacklist' % (ctx.message.guild.get_member(user.id), user.id),  ttl=5)
 
     # Automatically remove channel and guilds from blacklist on leave
     async def on_guild_remove(self, guild):

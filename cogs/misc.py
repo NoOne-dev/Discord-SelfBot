@@ -6,7 +6,7 @@ import random
 from discord.ext import commands
 from enum import Enum
 from random import choice
-from .utils.checks import perms
+from .utils.checks import send
 
 log = logging.getLogger('LOG')
 
@@ -41,12 +41,11 @@ class Misc:
     # Sends a googleitfor.me link with the specified tags
     @commands.command()
     async def l2g(self, ctx, *, msg: str):
-        await ctx.message.delete()
         lmgtfy = 'http://googleitfor.me/?q='
         words = msg.lower().strip().split(' ')
         for word in words:
             lmgtfy += word + '+'
-        await ctx.send(lmgtfy[:-1])
+        await send(ctx, content=lmgtfy[:-1])
 
     # Picks a random answer from a list of options
     @commands.command()
@@ -54,19 +53,19 @@ class Misc:
         choiceslist = choices.split("|")
         choice = random.choice(choiceslist)
         if len(choiceslist) < 2:
-            await ctx.send("2+ Options, separated with ``|``",  delete_after=5)
+            await send(ctx, content="2+ Options, separated with ``|``",  ttl=5)
         else:
             message = "<:robot:273922151856209923> | My Answer is ``{0}``"
-            await ctx.send(message.format(choice))
+            await send(ctx, content=message.format(choice), delete=False)
         await ctx.message.edit(content='Options:| %s |' % choices)
 
     # 8ball
     @commands.command(name="8", aliases=["8ball"])
     async def _8ball(self, ctx, *, question: str):
         if question.endswith("?") and question != "?":
-            await ctx.send("`" + choice(self.ball) + "`")
+            await send(ctx, content="`" + choice(self.ball) + "`", delete=False)
         else:
-            await ctx.send("That doesn't look like a question.")
+            await send(ctx, content="That doesn't look like a question.", ttl=3)
 
     # RPS
     @commands.command()
@@ -87,11 +86,11 @@ class Misc:
             outcome = cond[(player_choice, bot_choice)]
 
         if outcome is True:
-            await ctx.send("{} You win!".format(bot_choice.value))
+            await send(ctx, content="{} You win!".format(bot_choice.value), delete=False)
         elif outcome is False:
-            await ctx.send("{} You lose!".format(bot_choice.value))
+            await send(ctx, content="{} You lose!".format(bot_choice.value), delete=False)
         else:
-            await ctx.send("{} We're square!".format(bot_choice.value))
+            await send(ctx, content="{} We're square!".format(bot_choice.value), delete=False)
 
     # Urbandictionary
     @commands.command()
@@ -119,17 +118,13 @@ class Misc:
                 embed = discord.Embed(title='Definition #{} out of {}'.format(pos+1, defs), description=definition, colour=0x9b59b6)
                 embed.set_author(name=search_terms, icon_url='https://i.imgur.com/bLf4CYz.png')
                 embed.add_field(name="Example:", value=example, inline=False)
-                if perms(ctx.message):
-                    await ctx.send(embed=embed)
-                else:
-                    await ctx.send('\N{HEAVY EXCLAMATION MARK SYMBOL} No Perms for Embeds, move to a better Guild!', delete_after=5)
+                await send(embed=embed)
             else:
-                await ctx.send("Your search terms gave no results.")
+                await send(ctx, content="Your search terms gave no results.", ttl=3)
         except IndexError:
-            await ctx.send("There is no definition #{}".format(pos+1))
+            await send(ctx, content="There is no definition #{}".format(pos+1), ttl=3)
         except:
-            await ctx.send("Error.")
-        await ctx.message.delete()
+            await send(ctx, content="Error.", ttl=3)
 
     @commands.command()
     async def gif(self, ctx, *text):
@@ -142,15 +137,15 @@ class Misc:
                         result = await r.json()
                     if result["data"] != []:
                         url = result["data"]["url"]
-                        await ctx.send(url)
+                        await send(ctx, content=url)
                     else:
-                        await ctx.send("Your search terms gave no results.")
+                        await send(ctx, content="Your search terms gave no results.", ttl=3)
                 except:
-                    await ctx.send("Error.")
+                    await send(ctx, content="Error.", ttl=3)
             else:
-                await ctx.send("Invalid search.")
+                await send(ctx, content="Invalid search.", ttl=3)
         else:
-            await ctx.send("\N{HEAVY EXCLAMATION MARK SYMBOL} Specify Search")
+            await send(ctx, content="\N{HEAVY EXCLAMATION MARK SYMBOL} Specify Search", ttl=3)
 
 
 def setup(bot):

@@ -7,7 +7,7 @@ import pytz
 import textwrap
 import traceback
 
-from .utils.checks import getUser
+from .utils.checks import getUser, send
 from .utils import config
 from contextlib import redirect_stdout
 from discord.ext import commands
@@ -24,7 +24,6 @@ class Debug:
     # DEBUG
     @commands.command()
     async def debug(self, ctx, *, code: str):
-        await ctx.message.delete()
         code = code.strip('` ')
         python = '```ocaml\n>>> Input: {}\n{}\n```'
         result = None
@@ -47,7 +46,7 @@ class Debug:
             if inspect.isawaitable(result):
                 result = await result
         except Exception as e:
-            await ctx.send(python.format(code, '>>> %s' % type(e).__name__ + ': ' + str(e)))
+            await send(ctx, content=python.format(code, '>>> %s' % type(e).__name__ + ': ' + str(e)))
             return
         if len(str(code) + '>>> Output:' + str(result)) > 2000:
             time = datetime.datetime.now(pytz.timezone('CET'))
@@ -55,10 +54,10 @@ class Debug:
             with open(result_file, 'w') as file:
                 file.write(str(result))
             with open(result_file, 'rb') as file:
-                await ctx.send(python.format(code, '>>> Output: See attached file!'), file=file)
+                await send(ctx, content=python.format(code, '>>> Output: See attached file!'), file=file)
             os.remove(result_file)
         else:
-            await ctx.send(python.format(code, '>>> Output: %s' % result))
+            await send(ctx, content=python.format(code, '>>> Output: %s' % result))
 
     def cleanup_code(self, content):
         if content.startswith('```') and content.endswith('```'):

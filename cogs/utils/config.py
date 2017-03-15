@@ -5,7 +5,6 @@ import uuid
 
 
 class Config:
-    """The "database" object. Internally based on ``json``."""
 
     def __init__(self, name, **options):
         self.name = name

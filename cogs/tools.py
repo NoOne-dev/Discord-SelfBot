@@ -5,7 +5,7 @@ import os
 import platform
 import psutil
 
-from .utils.checks import me, perms
+from .utils.checks import me, send, getwithoutInvoke, getTimeDiff
 from .utils import config
 from discord.ext import commands
 
@@ -35,35 +35,20 @@ class Tools:
     @commands.command()
     async def ping(self, ctx):
         msgTime = ctx.message.created_at
-        await ctx.message.delete()
         now = datetime.datetime.now()
         ping = now - msgTime
-        if perms(ctx.message):
-            pong = discord.Embed(title='Pong!', colour=0x9b59b6)
-            pong.add_field(name="Response Time:", value='%sms' % str(ping.total_seconds())[2:-3])
-            pong.set_thumbnail(url='http://i.imgur.com/SKEmkvf.png')
-            await ctx.send(embed=pong, delete_after=5)
-        else:
-            await ctx.send('**Pong!** - %sms' % str(ping.total_seconds())[2:-3], delete_after=5)
+        pong = discord.Embed(title='Pong!', colour=0x9b59b6)
+        pong.add_field(name="Response Time:", value='%sms' % str(ping.total_seconds())[2:-3])
+        pong.set_thumbnail(url='http://i.imgur.com/SKEmkvf.png')
+        await send(ctx, embed=pong, ttl=5)
 
     # Time Since Bot is running
     @commands.command()
     async def uptime(self, ctx):
-        delta = datetime.datetime.now() - self.bot.uptime
-        hours, remainder = divmod(int(delta.total_seconds()), 3600)
-        minutes, seconds = divmod(remainder, 60)
-        days, hours = divmod(hours, 24)
-        fmt = '{h}h {m}m {s}s'
-        if days:
-            fmt = '{d}d ' + fmt
         embed = discord.Embed(title='\N{CLOCK FACE THREE OCLOCK} UPTIME', colour=0x9b59b6)
-        embed.add_field(name='﻿ ', value=fmt.format(d=days, h=hours, m=minutes, s=seconds), inline=False)
+        embed.add_field(name='﻿ ', value=getTimeDiff(self.bot.uptime), inline=False)
         embed.set_thumbnail(url='http://i.imgur.com/mfxd06f.gif')
-        if perms(ctx.message):
-            await ctx.send(embed=embed, delete_after=10)
-        else:
-            await ctx.send('**Uptime:** %s' % fmt.format(d=days, h=hours, m=minutes, s=seconds), delete_after=5)
-        await ctx.message.delete()
+        await send(ctx, embed=embed, ttl=20)
 
     # Various stat about the bot since startup
     @commands.command()
@@ -72,96 +57,78 @@ class Tools:
         unique_online = sum(1 for m in unique_members if m.status != discord.Status.offline)
         voice = sum(len(g.voice_channels) for g in self.bot.guilds)
         text = sum(len(g.text_channels) for g in self.bot.guilds)
-        alll = text+voice
-        delta = datetime.datetime.now() - self.bot.uptime
-        hours, remainder = divmod(int(delta.total_seconds()), 3600)
-        minutes, seconds = divmod(remainder, 60)
-        days, hours = divmod(hours, 24)
-        if days:
-            fmt = '{d} days, {h} hours, {m} minutes, and {s} seconds'
-        else:
-            fmt = '{h} hours, {m} minutes, and {s} seconds'
-        if perms(ctx.message):
-            embed = discord.Embed(title='\N{ELECTRIC LIGHT BULB} Bot Info', colour=0x9b59b6)
-            embed.add_field(name='\N{CLOCK FACE THREE OCLOCK} UPTIME', value=fmt.format(d=days, h=hours, m=minutes, s=seconds), inline=False)
-            embed.add_field(name='\N{SPEECH BALLOON} Commands Used', value=sum(self.bot.commands_triggered.values()), inline=True)
-            embed.add_field(name='\N{INBOX TRAY} Messages Received', value=(self.bot.message_count - self.bot.icount), inline=True)
-            embed.add_field(name='\N{OUTBOX TRAY} Messages Sent', value=self.bot.icount, inline=True)
-            embed.add_field(name='\N{SPEAKING HEAD IN SILHOUETTE} Members [%s]' % len(unique_members), value='%s Online' % unique_online, inline=True)
-            embed.add_field(name='\N{SPIRAL NOTE PAD} Channels [%s]' % alll, value='%s Text | %s Voice' % (text, voice), inline=True)
-            embed.add_field(name='\N{TICKET} Guilds', value=len(self.bot.guilds))
-            embed.add_field(name='\N{BELL} Mentions [%s]' % (self.bot.mention_count + self.bot.mention_count_name), value='%s Pings | %s Names' % (self.bot.mention_count, self.bot.mention_count_name), inline=True)
-            try:
-                embed.add_field(name='\N{ANTICLOCKWISE DOWNWARDS AND UPWARDS OPEN CIRCLE ARROWS} Most Used', value='%s [%s]' % (self.bot.commands_triggered.most_common()[0][0], self.bot.commands_triggered.most_common()[0][1]))
-            except:
-                embed.add_field(name='\N{ANTICLOCKWISE DOWNWARDS AND UPWARDS OPEN CIRCLE ARROWS} Most Used', value='﻿None')
-            await ctx.send(embed=embed,  delete_after=20)
-        else:
-            await ctx.send('\N{HEAVY EXCLAMATION MARK SYMBOL} No Perms for Embeds, move to a better Guild!', delete_after=5)
-        await ctx.message.delete()
+        embed = discord.Embed(title='\N{ELECTRIC LIGHT BULB} Bot Info', colour=0x9b59b6)
+        embed.add_field(name='\N{CLOCK FACE THREE OCLOCK} UPTIME',
+                        value=getTimeDiff(self.bot.uptime), inline=True)
+        embed.add_field(name='\N{INBOX TRAY} Messages Received',
+                        value=(self.bot.message_count - self.bot.icount), inline=True)
+        embed.add_field(name='\N{OUTBOX TRAY} Messages Sent',
+                        value=self.bot.icount, inline=True)
+        embed.add_field(name='\N{SPEAKING HEAD IN SILHOUETTE} Members [%s]' % len(unique_members),
+                        value='%s Online' % unique_online, inline=True)
+        embed.add_field(name='\N{SPIRAL NOTE PAD} Channels [%s]' % (text+voice),
+                        value='%s Text | %s Voice' % (text, voice), inline=True)
+        embed.add_field(name='\N{TICKET} Guilds',
+                        value=len(self.bot.guilds))
+        embed.add_field(name='\N{BELL} Mentions [%s]' % (self.bot.mention_count + self.bot.mention_count_name),
+                        value='%s Pings | %s Names' % (self.bot.mention_count, self.bot.mention_count_name), inline=True)
+        embed.add_field(name='\N{SPEECH BALLOON} Commands Used',
+                        value=sum(self.bot.commands_triggered.values()), inline=True)
+        try:
+            embed.add_field(name='\N{ANTICLOCKWISE DOWNWARDS AND UPWARDS OPEN CIRCLE ARROWS} Most Used',
+                            value='%s [%s]' % (self.bot.commands_triggered.most_common()[0][0], self.bot.commands_triggered.most_common()[0][1]))
+        except:
+            embed.add_field(name='\N{ANTICLOCKWISE DOWNWARDS AND UPWARDS OPEN CIRCLE ARROWS} Most Used',
+                            value='﻿None')
+        await send(ctx, embed=embed, ttl=20)
 
     # Host System Infos
     @commands.command()
     async def sysinfo(self, ctx):
-        embed = discord.Embed(title='\N{ELECTRIC LIGHT BULB} Host Info', colour=0x9b59b6)
         process = psutil.Process(os.getpid())
-        t = datetime.datetime.fromtimestamp(int(process.create_time()))
-        delta = datetime.datetime.now() - t
-        hours, remainder = divmod(int(delta.total_seconds()), 3600)
-        minutes, seconds = divmod(remainder, 60)
-        days, hours = divmod(hours, 24)
-        fmt = '{d}:{h}:{m}:{s}'
         memory_usage = process.memory_full_info().uss / 1024**2
         avai = psutil.virtual_memory().total / 1024**2
         mepro = process.memory_percent()
         prosys = psutil.cpu_percent()
         sys = '%s %s' % (platform.linux_distribution(full_distribution_name=1)[0].title(), platform.linux_distribution(full_distribution_name=1)[1])
-        embed.add_field(name='\N{CLOCK FACE THREE OCLOCK} UPTIME', value=fmt.format(d=days, h=hours, m=minutes, s=seconds))
-        embed.add_field(name='\N{DESKTOP COMPUTER} SYSTEM', value='{0}, {1}'.format(platform.system(), sys, platform.release()))
-        embed.add_field(name='\N{FLOPPY DISK} MEMORY', value='{:.2f} MiB / {:.2f} MiB\nBot uses: {:.2f}%'.format(memory_usage, avai, mepro))
-        embed.add_field(name='\N{DVD} CPU', value='{:.2f}%'.format(prosys))
-        await ctx.message.delete()
-        if perms(ctx.message):
-            await ctx.send(embed=embed,  delete_after=20)
-        else:
-            await ctx.send('\N{HEAVY EXCLAMATION MARK SYMBOL} No Perms for Embeds, move to a better Guild!', delete_after=5)
+        embed = discord.Embed(title='\N{ELECTRIC LIGHT BULB} Host Info', colour=0x9b59b6)
+        embed.add_field(name='\N{CLOCK FACE THREE OCLOCK} UPTIME',
+                        value=getTimeDiff(datetime.datetime.fromtimestamp(int(process.create_time()))))
+        embed.add_field(name='\N{DESKTOP COMPUTER} SYSTEM',
+                        value='{0}, {1}'.format(platform.system(), sys, platform.release()))
+        embed.add_field(name='\N{FLOPPY DISK} MEMORY',
+                        value='{:.2f} MiB / {:.2f} MiB\nBot uses: {:.2f}%'.format(memory_usage, avai, mepro))
+        embed.add_field(name='\N{DVD} CPU',
+                        value='{:.2f}%'.format(prosys))
+        await send(ctx, embed=embed, ttl=20)
 
     # Change Gamestatus - blank is no game
     @commands.command()
     async def game(self, ctx):
-        await self.config.put('gamestatus', ctx.message.content[6:])
-        await ctx.message.delete()
+        await self.config.put('gamestatus', getwithoutInvoke(ctx))
         await self.bot.change_presence(game=discord.Game(name=self.config.get('gamestatus', [])), status='invisible', afk=True)
-        await ctx.send('Now playing: ``%s``' % self.config.get('gamestatus', []),  delete_after=5)
+        await send(ctx, 'Now playing: ``%s``' % self.config.get('gamestatus', []),  ttl=5)
 
     # Find message with specific Text in Channel History...    Search Term(s) | Text
     @commands.command()
     async def quote(self, ctx):
-        pre = len(ctx.prefix + ctx.command.qualified_name + ' ')
-        search = ctx.message.content[pre:]
-        content = ' '
-        if '|' in ctx.message.content[pre:]:
-            msg = ctx.message.content[pre:].split(" | ")
+        search = getwithoutInvoke(ctx)
+        content = '\U0000200d'
+        if '|' in search:
+            msg = search.split(" | ")
             search = msg[0]
             content = msg[1]
         async for message in ctx.message.channel.history(limit=500):
-            if message.id != ctx.message.id:
-                if search in message.content:
-                    em = discord.Embed(description=message.clean_content, timestamp=message.created_at, colour=0x33CC66)
-                    em.set_author(name=message.author.display_name, icon_url=message.author.avatar_url)
-                    await ctx.message.delete()
-                    if perms(ctx.message):
-                        await ctx.send(content=content, embed=em)
-                    else:
-                        await ctx.send('\N{HEAVY EXCLAMATION MARK SYMBOL} No Perms for Embeds, move to a better Guild!', delete_after=5)
-                    return
-        await ctx.message.delete()
-        await ctx.send('Message not found!', delete_after=3)
+            if message.id != ctx.message.id and search in message.content:
+                em = discord.Embed(description=message.clean_content, timestamp=message.created_at, colour=0x33CC66)
+                em.set_author(name=message.author.display_name, icon_url=message.author.avatar_url)
+                await send(ctx, content=content, embed=em)
+                return
+        await send(ctx, 'Message not found!', ttl=3)
 
     # Deletes messages from Channel History - only number for own, number and "all" to delete every message and not only the own
     @commands.command()
     async def clean(self, ctx, limit: int=25):
-        await ctx.message.delete()
         msg_amt = 0
         async for message in ctx.message.channel.history(limit=limit):
                 if me(message):
@@ -178,7 +145,7 @@ class Tools:
                         pass
                     await asyncio.sleep(0.25)
                     msg_amt += 1
-        await ctx.send('Cleaned `{}` messages out of `{}` that were checked.'.format(msg_amt, limit), delete_after=3)
+        await send(ctx, 'Cleaned `{}` messages out of `{}` that were checked.'.format(msg_amt, limit), ttl=3)
 
 
 def setup(bot):

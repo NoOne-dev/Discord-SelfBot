@@ -5,7 +5,7 @@ import re
 
 from .utils import config
 from .utils.allmsgs import quickcmds, custom
-from .utils.checks import hasPassed, perms, me
+from .utils.checks import hasPassed, permEmbed, me
 from discord import utils
 
 log = logging.getLogger('LOG')
@@ -43,7 +43,7 @@ class OnMessage:
                     pass
                 else:
                     if response[0] == 'embed':
-                        if perms(message):
+                        if permEmbed(message):
                             await message.channel.send(content='%s' % response[2], embed=discord.Embed(colour=0x9b59b6).set_image(url=response[1]))
                         else:
                             await message.channel.send('{0}\n{1}'.format(response[2], response[1]))
@@ -104,9 +104,12 @@ class OnMessage:
                     if hasattr(self.bot, 'mention_count_name'):
                         self.bot.mention_count_name += 1
                 em.set_author(name=message.author, icon_url=message.author.avatar_url)
-                em.add_field(name='In', value="#%s, ``%s``" % (message.channel, message.guild), inline=False)
-                em.add_field(name='At', value="%s" % datetime.datetime.now().__format__('%A, %d. %B %Y @ %H:%M:%S'), inline=False)
-                em.add_field(name='Message', value="%s" % message.clean_content, inline=False)
+                em.add_field(name='In',
+                             value="#%s, ``%s``" % (message.channel, message.guild), inline=False)
+                em.add_field(name='At',
+                             value="%s" % datetime.datetime.now().__format__('%A, %d. %B %Y @ %H:%M:%S'), inline=False)
+                em.add_field(name='Message',
+                             value="%s" % message.clean_content, inline=False)
                 em.set_thumbnail(url=message.author.avatar_url)
                 await self.bot.get_channel(self.config.get('log_channel', [])).send(embed=em)
 
