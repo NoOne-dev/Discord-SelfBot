@@ -23,7 +23,7 @@ class Cogs:
             self.bot.load_extension(module)
         except Exception as e:
             await send(ctx, content='Not Loading', ttl=5)
-            await send(ctx, content='``{}: {}``'.format(type(e).__name__, e), ttl=5)
+            await send(ctx, content='``{}: {}``'.format(type(e).__name__, e), ttl=5, delete=False)
             log.error('Loading {} faild!\n{}: {}'.format(module, type(e).__name__, e))
         else:
             await send(ctx, content='Loaded %s' % module, ttl=5)
@@ -36,7 +36,7 @@ class Cogs:
             self.bot.unload_extension(module)
         except Exception as e:
             await send(ctx, content='Not unloading', ttl=5)
-            await send(ctx, content='``{}: {}``'.format(type(e).__name__, e), ttl=5)
+            await send(ctx, content='``{}: {}``'.format(type(e).__name__, e), ttl=5, delete=False)
             log.error('Unloading {} faild!\n{}: {}'.format(module, type(e).__name__, e))
         else:
             await send(ctx, content='Unloaded %s' % module, ttl=5)
@@ -70,7 +70,7 @@ class Cogs:
                 self.bot.load_extension(module)
             except Exception as e:
                 await send(ctx, content='Not reloading', ttl=5)
-                await send(ctx, content='``{}: {}``'.format(type(e).__name__, e), ttl=5)
+                await send(ctx, content='``{}: {}``'.format(type(e).__name__, e), ttl=5, delete=False)
                 log.error('Reloading {} failed!\n{}: {}'.format(module, type(e).__name__, e))
             else:
                 await send(ctx, content='Reloaded %s' % module, ttl=5)

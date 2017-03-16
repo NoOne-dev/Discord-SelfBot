@@ -88,18 +88,18 @@ class Logging:
                 temp = []
                 first = True
                 count = 1
-                send = ''
+                se = ''
                 for i in guilds.split(', '):
-                    if len(send + i + ', ') < 1024:
+                    if len(se + i + ', ') < 1024:
                         if count == len(guilds.split(', ')):
-                            send += i + ', '
-                            temp.append(send)
+                            se += i + ', '
+                            temp.append(se)
                         else:
-                            send += i + ', '
+                            se += i + ', '
                             count += 1
                     else:
-                        temp.append(send)
-                        send = i + ', '
+                        temp.append(se)
+                        se = i + ', '
                         count += 1
                 for x in temp:
                     if first:
