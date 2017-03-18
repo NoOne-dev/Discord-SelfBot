@@ -14,16 +14,26 @@ config = config.Config('config.json')
 # Logging
 log = logging.getLogger('LOG')
 log.setLevel(logging.INFO)
-if not log.handlers:
-    handler = logging.FileHandler(filename='Logs/SelfIgneel' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S") + '.log', encoding='utf-8', mode='w')
-    ch = logging.StreamHandler()
-    handler.setLevel(logging.INFO)
-    ch.setLevel(logging.INFO)
-    handler.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', '%Y-%m-%d %H:%M:%S:%s'))
-    ch.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', '%H:%M:%S:%s'))
-    log.addHandler(handler)
-    log.addHandler(ch)
-log.propagate = False
+
+selfFile = logging.FileHandler(filename='Logs/Self/SelfIgneel' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S") + '.log', encoding='utf-8', mode='w')
+selfFile.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', '%Y-%m-%d %H:%M:%S:%s'))
+log.addHandler(selfFile)
+
+selfConsole = logging.StreamHandler()
+selfConsole.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', '%H:%M:%S:%s'))
+log.addHandler(selfConsole)
+
+logger = logging.getLogger('discord')
+logger.setLevel(logging.INFO)
+
+discordFile = logging.FileHandler(filename='Logs/Discord/Discord' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S") + '.log', encoding='utf-8', mode='w')
+discordFile.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', '%Y-%m-%d %H:%M:%S:%s'))
+logger.addHandler(discordFile)
+
+discordConsole = logging.StreamHandler()
+discordConsole.setLevel(logging.WARNING)
+discordConsole.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', '%H:%M:%S:%s'))
+logger.addHandler(discordConsole)
 
 extensions = ['cogs.cmds',
               'cogs.cogs',
@@ -94,7 +104,3 @@ if __name__ == '__main__':
         except Exception as e:
             log.warning('Failed to load extension {}\n{}: {}'.format(extension, type(e).__name__, e))
     bot.run(config.get('token', []), bot=False)
-    handlers = log.handlers[:]
-    for hdlr in handlers:
-        hdlr.close()
-        log.removeHandler(hdlr)

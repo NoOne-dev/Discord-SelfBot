@@ -36,6 +36,7 @@ class Debug:
             'server': ctx.message.guild,
             'channel': ctx.message.channel,
             'author': ctx.message.author,
+            'me': ctx.message.author,
             'self': self,
             'user': getUser,
             'discord': discord
@@ -82,6 +83,7 @@ class Debug:
             'server': ctx.message.guild,
             'channel': ctx.message.channel,
             'author': ctx.message.author,
+            'me': ctx.message.author,
             'self': self,
             'user': getUser,
             '_': self._last_result
