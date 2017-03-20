@@ -34,11 +34,11 @@ class Tools:
     # Ping Time
     @commands.command()
     async def ping(self, ctx):
-        msgTime = ctx.message.created_at
-        now = datetime.datetime.now()
-        ping = now - msgTime
+        before = datetime.datetime.now()
+        await (await self.bot.ws.ping())
+        ping = (datetime.datetime.now() - before) * 1000
         pong = discord.Embed(title='Pong!', colour=0x9b59b6)
-        pong.add_field(name="Response Time:", value='%sms' % str(ping.total_seconds())[2:-3])
+        pong.add_field(name="Response Time:", value='{:.2f}ms'.format(ping.total_seconds()))
         pong.set_thumbnail(url='http://i.imgur.com/SKEmkvf.png')
         await send(ctx, embed=pong, ttl=5)
 
