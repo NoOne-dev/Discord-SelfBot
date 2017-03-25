@@ -156,23 +156,24 @@ class Google:
             }
         entries = []
         card = None
-        async with aiohttp.get('https://www.google.com/search', params=params, headers=headers) as resp:
-            if resp.status != 200:
-                raise RuntimeError('Google somehow failed to respond.')
+        async with aiohttp.ClientSession() as cs:
+            async with cs.get('https://www.google.com/search', params=params, headers=headers) as resp:
+                if resp.status != 200:
+                    raise RuntimeError('Google somehow failed to respond.')
 
-            root = etree.fromstring(await resp.text(), etree.HTMLParser())
-            card_node = root.find(".//div[@id='topstuff']")
-            card = self.parse_google_card(card_node)
-            search_nodes = root.findall(".//div[@class='g']")
-            for node in search_nodes:
-                url_node = node.find('.//h3/a')
-                if url_node is None:
-                    continue
-                url = url_node.attrib['href']
-                if not url.startswith('/url?'):
-                    continue
-                url = parse_qs(url[5:])['q'][0]
-                entries.append(url)
+                root = etree.fromstring(await resp.text(), etree.HTMLParser())
+                card_node = root.find(".//div[@id='topstuff']")
+                card = self.parse_google_card(card_node)
+                search_nodes = root.findall(".//div[@class='g']")
+                for node in search_nodes:
+                    url_node = node.find('.//h3/a')
+                    if url_node is None:
+                        continue
+                    url = url_node.attrib['href']
+                    if not url.startswith('/url?'):
+                        continue
+                    url = parse_qs(url[5:])['q'][0]
+                    entries.append(url)
         return card, entries
 
     # Google Command
@@ -201,15 +202,16 @@ class Google:
     # Google Image Search (100 per day)
     @commands.command()
     async def i(self, ctx, *, query):
-        async with aiohttp.get("https://www.googleapis.com/customsearch/v1?q=" + query.replace(' ', '+') + "&start=" + '1' + "&key=" + self.config.get('google_api_key', []) + "&cx=" + self.config.get('custom_search_engine', []) + "&searchType=image") as resp:
-            if resp.status != 200:
-                await send(ctx, content='Google somehow failed to respond.', ttl=3)
-            result = json.loads(await resp.text())
-            em = discord.Embed(colour=0x0057e7)
-            if permEmbed(ctx.message):
-                await send(ctx, content=None, embed=em.set_image(url=result['items'][0]['link']))
-            else:
-                await send(ctx, content=result['items'][0]['link'])
+        async with aiohttp.ClientSession() as cs:
+            async with cs.get("https://www.googleapis.com/customsearch/v1?q=" + query.replace(' ', '+') + "&start=" + '1' + "&key=" + self.config.get('google_api_key', []) + "&cx=" + self.config.get('custom_search_engine', []) + "&searchType=image") as resp:
+                if resp.status != 200:
+                    await send(ctx, content='Google somehow failed to respond.', ttl=3)
+                result = json.loads(await resp.text())
+                em = discord.Embed(colour=0x0057e7)
+                if permEmbed(ctx.message):
+                    await send(ctx, content=None, embed=em.set_image(url=result['items'][0]['link']))
+                else:
+                    await send(ctx, content=result['items'][0]['link'])
 
 
 def setup(bot):

@@ -15,6 +15,7 @@ class Mal:
 
     def __init__(self, bot):
         self.bot = bot
+        self.malid = None
         self.config = config.Config('config.json')
         self.loop = asyncio.get_event_loop()
 
@@ -28,28 +29,31 @@ class Mal:
             'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64)'
             }
         entries = []
-        async with aiohttp.get('https://www.google.com/search', params=params, headers=headers) as resp:
-            if resp.status != 200:
-                raise RuntimeError('Google somehow failed to respond.')
-            root = etree.fromstring(await resp.text(), etree.HTMLParser())
-            search_nodes = root.findall(".//div[@class='g']")
-            for node in search_nodes:
-                url_node = node.find('.//h3/a')
-                if url_node is None:
-                    continue
-                url = url_node.attrib['href']
-                if not url.startswith('/url?'):
-                    continue
-                if search in url:
-                    if ('/recommendations/' in url) or ('/character/' in url) or ('/featured/' in url):
+        async with aiohttp.ClientSession() as cs:
+            async with cs.get('https://www.google.com/search', params=params, headers=headers) as resp:
+                if resp.status != 200:
+                    raise RuntimeError('Google somehow failed to respond.')
+                root = etree.fromstring(await resp.text(), etree.HTMLParser())
+                search_nodes = root.findall(".//div[@class='g']")
+                for node in search_nodes:
+                    url_node = node.find('.//h3/a')
+                    if url_node is None:
                         continue
-                    url = parse_qs(url[5:])['q'][0]
-                    entries.append(url)
-            try:
-                content = entries[0].split('/')[4]
-            except:
-                content = None
-            return content
+                    url = url_node.attrib['href']
+                    if not url.startswith('/url?'):
+                        continue
+                    if search in url:
+                        if ('/recommendations/' in url) or ('/character/' in url) or ('/featured/' in url):
+                            continue
+                        url = parse_qs(url[5:])['q'][0]
+                        entries.append(url)
+                try:
+                    content = entries[0].split('/')[4]
+                except:
+                    content = None
+            cs.close()
+        self.malid = content
+        return content
 
     def getMal(self, i, _type):
         creds = spice.init_auth(self.config.get('mal_username', []), self.config.get('mal_password', []))
@@ -96,14 +100,15 @@ class Mal:
     async def anime(self, ctx, *, query):
         se = await ctx.send(content='Searching...')
         try:
-            content = await self.get_google_entries(query, 'anime')
+            content = await self.loop.run_in_executor(None, self.get_google_entries, query, 'anime')
+            await content
         except RuntimeError as e:
             await send(ctx, content=str(e), ttl=3)
         else:
-            if (content is None) or (not content.isdigit()):
+            if content is None:
                 await send(ctx, content='No results found... sorry.', ttl=3)
             else:
-                em = await self.loop.run_in_executor(None, self.parse_content, content, 'anime')
+                em = await self.loop.run_in_executor(None, self.parse_content, self.malid, 'anime')
                 try:
                     if permEmbed(ctx.message):
                         await send(ctx, embed=em)
