@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import discord
 import logging
@@ -15,24 +16,27 @@ config = config.Config('config.json')
 log = logging.getLogger('LOG')
 log.setLevel(logging.INFO)
 
+fileFormatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', '%Y-%m-%d %H:%M:%S')
+consoleFormatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', '%H:%M:%S')
+
 selfFile = logging.FileHandler(filename='Logs/Self/SelfIgneel' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S") + '.log', encoding='utf-8', mode='w')
-selfFile.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', '%Y-%m-%d %H:%M:%S:%s'))
+selfFile.setFormatter(fileFormatter)
 log.addHandler(selfFile)
 
 selfConsole = logging.StreamHandler()
-selfConsole.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', '%H:%M:%S:%s'))
+selfConsole.setFormatter(consoleFormatter)
 log.addHandler(selfConsole)
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.INFO)
 
 discordFile = logging.FileHandler(filename='Logs/Discord/Discord' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S") + '.log', encoding='utf-8', mode='w')
-discordFile.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', '%Y-%m-%d %H:%M:%S:%s'))
+discordFile.setFormatter(fileFormatter)
 logger.addHandler(discordFile)
 
 discordConsole = logging.StreamHandler()
-discordConsole.setLevel(logging.WARNING)
-discordConsole.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', '%H:%M:%S:%s'))
+discordConsole.setLevel(logging.ERROR)
+discordConsole.setFormatter(consoleFormatter)
 logger.addHandler(discordConsole)
 
 extensions = ['cogs.cmds',
@@ -64,6 +68,7 @@ async def on_ready():
     bot.mention_count = 0
     bot.mention_count_name = 0
     bot.refresh_time = time.time()
+    bot.game = None
     if config.get('restart', []) == 'true':
         await config.put('restart', '')
         await bot.get_channel(config.get('restart_channel', [])).send(':wave: Back Running!', delete_after=2)
@@ -96,6 +101,19 @@ async def on_command_completion(ctx):
         destination = '#{0.channel.name},({0.guild.name})'.format(message)
     log.info('In {1}:{0.content}'.format(message, destination))
 
+
+# Gamestatus
+async def status(bot):
+    while not bot.is_closed():
+        if bot.is_ready():
+            loginfo = bot.game
+            bot.game = discord.Game(name=config.get('gamestatus', [])) if config.get('gamestatus', []) != '' else None
+            await bot.change_presence(game=bot.game, status=discord.Status.invisible, afk=True)
+            if str(loginfo) != str(bot.game):
+                log.info('Game changed to playing {}'.format(bot.game))
+
+        await asyncio.sleep(20)
+
 # Load Extensions / Logger / Runbot
 if __name__ == '__main__':
     for extension in extensions:
@@ -103,4 +121,5 @@ if __name__ == '__main__':
             bot.load_extension(extension)
         except Exception as e:
             log.warning('Failed to load extension {}\n{}: {}'.format(extension, type(e).__name__, e))
+    bot.loop.create_task(status(bot))
     bot.run(config.get('token', []), bot=False)

@@ -106,7 +106,6 @@ class Tools:
     @commands.command()
     async def game(self, ctx):
         await self.config.put('gamestatus', getwithoutInvoke(ctx))
-        await self.bot.change_presence(game=discord.Game(name=self.config.get('gamestatus', [])), status='invisible', afk=True)
         await send(ctx, 'Now playing: ``%s``' % self.config.get('gamestatus', []),  ttl=5)
 
     # Find message with specific Text in Channel History...    Search Term(s) | Text
