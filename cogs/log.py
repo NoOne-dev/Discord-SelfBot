@@ -80,7 +80,6 @@ class Logging:
             em.add_field(name="Blocked Words[%s] " % len(self.logging.get('key-blocked', {})), value=blocked)
 
         guilds = ', '.join(str(self.bot.get_guild(i)) for i in self.logging.get('block-guild', {}))
-        # TODO I should rework that shit sometime # too lazy
         if guilds is not '':
             if len(guilds) < 1024:
                 em.add_field(name="Blocked Guilds[%s]" % len(self.logging.get('block-guild', {})), value=guilds, inline=False)

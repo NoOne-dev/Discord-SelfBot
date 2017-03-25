@@ -1,11 +1,11 @@
-import datetime
 import discord
 import logging
 import re
 
 from .utils import config
 from .utils.allmsgs import quickcmds, custom
-from .utils.checks import hasPassed, permEmbed, me
+from .utils.checks import permEmbed, me
+from datetime import datetime
 from discord import utils
 
 log = logging.getLogger('LOG')
@@ -21,13 +21,7 @@ class OnMessage:
         # Increase Message Count
         if hasattr(self.bot, 'message_count'):
             self.bot.message_count += 1
-        # Set GAmestatus/Onlinestatus every given time (60Sec default)
-        if hasattr(self.bot, 'refresh_time'):
-            if hasPassed(self.bot, self.bot.refresh_time):
-                if self.config.get('gamestatus', []) == '':
-                    await self.bot.change_presence(status='invisible', afk=True)
-                else:
-                    await self.bot.change_presence(game=discord.Game(name=self.config.get('gamestatus', [])), status='invisible', afk=True)
+
         # Custom commands
         if me(message):
             if hasattr(self.bot, 'icount'):
@@ -107,7 +101,7 @@ class OnMessage:
                 em.add_field(name='In',
                              value="#%s, ``%s``" % (message.channel, message.guild), inline=False)
                 em.add_field(name='At',
-                             value="%s" % datetime.datetime.now().__format__('%A, %d. %B %Y @ %H:%M:%S'), inline=False)
+                             value="%s" % datetime.now().__format__('%A, %d. %B %Y @ %H:%M:%S'), inline=False)
                 em.add_field(name='Message',
                              value="%s" % message.clean_content, inline=False)
                 em.set_thumbnail(url=message.author.avatar_url)

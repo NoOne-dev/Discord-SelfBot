@@ -1,6 +1,5 @@
 import datetime
 import json
-import time
 
 from discord import utils
 
@@ -11,7 +10,7 @@ with open('config/config.json', 'r') as f:
 
 # Send made easier
 async def send(ctx, content=None, embed=None, delete=True, ttl=None, file=None):
-    perms = ctx.channel.permissions_for(ctx.me).embed_links
+    perms = ctx.channel.permissions_for(ctx.me).embed_links if embed is not None else True
     if delete is True and perms is True:
         await ctx.message.delete()
         await ctx.send(content=content, embed=embed, file=file, delete_after=ttl)
@@ -34,14 +33,6 @@ def permFile(message):
 # Check for perms of links and attached files
 def permEmbed(message):
     return message.channel.permissions_for(message.author).embed_links
-
-
-# Time for Gamestatus upate
-def hasPassed(bot, oldtime):
-    if time.time() - 60 < oldtime:
-        return False
-    bot.refresh_time = time.time()
-    return True
 
 
 def getwithoutInvoke(ctx):

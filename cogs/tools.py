@@ -145,6 +145,7 @@ class Tools:
                     await asyncio.sleep(0.25)
                     msg_amt += 1
         await send(ctx, 'Cleaned `{}` messages out of `{}` that were checked.'.format(msg_amt, limit), ttl=3)
+        await send(ctx, 'Cleaned `{}` messages out of `{}` that were checked.'.format(msg_amt, limit), ttl=3, delete=False)
 
 
 def setup(bot):
