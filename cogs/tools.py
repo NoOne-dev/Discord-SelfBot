@@ -31,6 +31,16 @@ class Tools:
         for page in p.pages:
             await ctx.send(page, delete_after=20)
 
+    @commands.command()
+    async def socketstats(self, ctx):
+        delta = datetime.datetime.now() - self.bot.uptime
+        minutes = delta.total_seconds() / 60
+        total = sum(self.bot.socket_stats.values())
+        cpm = total / minutes
+
+        fmt = '%s socket events observed (%.2f/minute):\n%s'
+        await send(ctx, content=fmt % (total, cpm, self.bot.socket_stats))
+
     # Ping Time
     @commands.command()
     async def ping(self, ctx):
@@ -53,8 +63,7 @@ class Tools:
     # Various stat about the bot since startup
     @commands.command()
     async def stats(self, ctx):
-        unique_members = set(self.bot.get_all_members())
-        unique_online = sum(1 for m in unique_members if m.status != discord.Status.offline)
+        unique_online = len(dict((m.id, m) for m in self.bot.get_all_members() if m.status != discord.Status.offline))
         voice = sum(len(g.voice_channels) for g in self.bot.guilds)
         text = sum(len(g.text_channels) for g in self.bot.guilds)
         embed = discord.Embed(title='\N{ELECTRIC LIGHT BULB} Bot Info', colour=0x9b59b6)
@@ -64,7 +73,7 @@ class Tools:
                         value=(self.bot.message_count - self.bot.icount), inline=True)
         embed.add_field(name='\N{OUTBOX TRAY} Messages Sent',
                         value=self.bot.icount, inline=True)
-        embed.add_field(name='\N{SPEAKING HEAD IN SILHOUETTE} Members [%s]' % len(unique_members),
+        embed.add_field(name='\N{SPEAKING HEAD IN SILHOUETTE} Members [%s]' % len(self.bot.users),
                         value='%s Online' % unique_online, inline=True)
         embed.add_field(name='\N{SPIRAL NOTE PAD} Channels [%s]' % (text+voice),
                         value='%s Text | %s Voice' % (text, voice), inline=True)

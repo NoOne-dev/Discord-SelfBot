@@ -64,6 +64,7 @@ async def on_ready():
     bot.uptime = datetime.datetime.now()
     bot.message_count = 0
     bot.commands_triggered = Counter()
+    bot.socket_stats = Counter()
     bot.icount = 0
     bot.mention_count = 0
     bot.mention_count_name = 0
@@ -100,6 +101,12 @@ async def on_command_completion(ctx):
     else:
         destination = '#{0.channel.name},({0.guild.name})'.format(message)
     log.info('In {1}:{0.content}'.format(message, destination))
+
+
+@bot.event
+async def on_socket_response(msg):
+    if bot.is_ready():
+        bot.socket_stats[msg.get('t')] += 1
 
 
 # Gamestatus
