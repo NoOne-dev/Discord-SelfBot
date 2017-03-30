@@ -1,5 +1,6 @@
 import aiohttp
 import discord
+import json
 import logging
 import random
 
@@ -109,18 +110,19 @@ class Misc:
         search_terms = "+".join(search_terms)
         url = "http://api.urbandictionary.com/v0/define?term=" + search_terms
         try:
-            async with aiohttp.get(url) as r:
-                result = await r.json()
-            if result["list"]:
-                definition = result['list'][pos]['definition']
-                example = result['list'][pos]['example']
-                defs = len(result['list'])
-                embed = discord.Embed(title='Definition #{} out of {}'.format(pos+1, defs), description=definition, colour=0x9b59b6)
-                embed.set_author(name=search_terms, icon_url='https://i.imgur.com/bLf4CYz.png')
-                embed.add_field(name="Example:", value=example, inline=False)
-                await send(embed=embed)
-            else:
-                await send(ctx, content="Your search terms gave no results.", ttl=3)
+            async with aiohttp.ClientSession() as cs:
+                async with cs.get(url) as r:
+                    result = json.loads(await r.text())
+                    if result["list"]:
+                        definition = result['list'][pos]['definition']
+                        example = result['list'][pos]['example']
+                        defs = len(result['list'])
+                        embed = discord.Embed(title='Definition #{} out of {}'.format(pos+1, defs), description=definition, colour=0x9b59b6)
+                        embed.set_author(name=search_terms, icon_url='https://i.imgur.com/bLf4CYz.png')
+                        embed.add_field(name="Example:", value=example, inline=False)
+                        await send(ctx, embed=embed)
+                    else:
+                        await send(ctx, content="Your search terms gave no results.", ttl=3)
         except IndexError:
             await send(ctx, content="There is no definition #{}".format(pos+1), ttl=3)
         except:
@@ -133,13 +135,14 @@ class Misc:
                 try:
                     msg = "+".join(text)
                     search = "http://api.giphy.com/v1/gifs/search?q=" + msg + "&api_key=dc6zaTOxFJmzC"
-                    async with aiohttp.get(search) as r:
-                        result = await r.json()
-                    if result["data"] != []:
-                        url = result["data"]["url"]
-                        await send(ctx, content=url)
-                    else:
-                        await send(ctx, content="Your search terms gave no results.", ttl=3)
+                    async with aiohttp.ClientSession() as cs:
+                        async with cs.get(search) as r:
+                            result = json.loads(await r.text())
+                            if result["data"] != []:
+                                url = result["data"][0]["images"]["original"]["url"]
+                                await send(ctx, content=url)
+                            else:
+                                await send(ctx, content="Your search terms gave no results.", ttl=3)
                 except:
                     await send(ctx, content="Error.", ttl=3)
             else:
