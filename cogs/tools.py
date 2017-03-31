@@ -155,6 +155,10 @@ class Tools:
                     msg_amt += 1
         await send(ctx, f'Cleaned `{msg_amt}` messages out of `{limit}` that were checked.', ttl=3, delete=False)
 
+    @commands.command()
+    async def stay(self, ctx, * content):
+        ...
+
 
 def setup(bot):
     bot.add_cog(Tools(bot))

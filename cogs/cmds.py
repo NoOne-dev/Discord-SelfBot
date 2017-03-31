@@ -21,15 +21,12 @@ class Customcmds:
             with open('config/commands.json', 'r') as com:
                 cmds = json.load(com)
             p.add_line('[List of Custom Commands]')
-            for cmd in cmds:
-                if type(cmds[cmd]) == list:
-                    msg = cmd + ' { '
-                    for i in cmds[cmd]:
-                        msg += str(i[0]) + ', '
-                    msg = msg[:-2] + ' }'
-                    p.add_line(msg)
-                else:
-                    p.add_line(cmd)
+            msg = []
+            for cmd in sorted(cmds):
+                msg.append(cmd)
+                if cmd == list(sorted(cmds))[-1] or len(msg) % 5 == 0 and len(msg) != 0:
+                    p.add_line(', '.join(x for x in msg))
+                    msg = []
             for page in p.pages:
                 await ctx.send(page, delete_after=20)
             await ctx.message.delete()
@@ -37,21 +34,13 @@ class Customcmds:
     # List all custom commands with Links
     @cmds.command()
     async def long(self, ctx):
-        p = commands.Paginator(prefix='```json\n{', suffix='}```')
+        p = commands.Paginator(prefix='```css')
         with open('config/commands.json', 'r') as com:
             cmds = json.load(com)
-        p.add_line('"List of Custom Commands" :"",')
-        p.add_line(empty=True)
-        for cmd in cmds:
-            msg = '"' + cmd + '" : "'
-            if type(cmds[cmd]) == list:
-                for i in cmds[cmd]:
-                    msg += str(i) + ', '
-                msg = msg[:-2] + '",\n'
-                p.add_line(msg)
-            else:
-                msg += str(cmds[cmd]) + '",\n'
-                p.add_line(msg)
+        p.add_line('[List of Custom Commands]')
+        width = len(max(cmds, key=len))
+        for cmd in sorted(cmds):
+            p.add_line('{0:<{width}}| {1}'.format(cmd, cmds.get(cmd), width=width))
         for page in p.pages:
             await ctx.send(page, delete_after=20)
         await ctx.message.delete()

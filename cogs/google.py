@@ -1,5 +1,6 @@
 import aiohttp
 import discord
+import goslate
 import json
 
 from discord.ext import commands
@@ -212,6 +213,19 @@ class Google:
                     await send(ctx, content=None, embed=em.set_image(url=result['items'][0]['link']))
                 else:
                     await send(ctx, content=result['items'][0]['link'])
+
+    @commands.command()
+    async def translate(self, ctx, lang, *, text):
+        gs = goslate.Goslate()
+        if len(lang) != 2:
+            return await send(ctx, "Please enter the short name for languages.\nFor example, `EN` is English.", ttl=3)
+        else:
+            result = gs.translate(text, lang.lower())
+            em = discord.Embed(colour=0x0057e7, timestamp=ctx.message.created_at)
+            em.set_author(name="Google Translate", url="https://translate.google.com/#{source_lang}/{target_lang}/{text}".format(source_lang=gs.detect(text), target_lang=lang, text=text.replace(" ", "%20")), icon_url="https://upload.wikimedia.org/wikipedia/commons/d/db/Google_Translate_Icon.png")
+            em.add_field(name="Source Text", value=text, inline=False)
+            em.add_field(name="Result", value=result, inline=False)
+            await send(ctx, embed=em)
 
 
 def setup(bot):
