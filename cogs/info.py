@@ -1,6 +1,7 @@
 import discord
 import datetime
 import logging
+import os
 import unicodedata
 
 from discord import utils
@@ -14,6 +15,21 @@ class Userinfo:
 
     def __init__(self, bot):
         self.bot = bot
+
+    # User Avi on Server
+    @commands.command()
+    async def about(self, ctx):
+        cmd = r'git show -s HEAD~1..HEAD --format="[{}](https://github.com/IgneelDxD/Discord-SelfBot/commit/%H) %s (%cr)"'
+        cmd = cmd.format(r'\`%h\`') if os.name == 'posix' else cmd.format(r'`%h`')
+        revision = os.popen(cmd).read().strip()
+        embed = discord.Embed()
+        embed.set_author(name="Igneel's SelfBot", url="https://github.com/IgneelDxD/Discord-SelfBot")
+        embed.description = "https://github.com/IgneelDxD/Discord-SelfBot\nThis is a Selfbot written by IgneelDxD\nFor support or feedback you can join my [Server](https://discord.gg/DJK8h3n)"
+        embed.colour = 0x9b59b6
+        embed.add_field(name='Latest Changes', value=revision)
+        embed.set_thumbnail(url="https://i.imgur.com/cD51k3R.png")
+        embed.set_footer(text='Made with discord.py | rewrite is the future!', icon_url='https://i.imgur.com/MyEXmz8.png')
+        await send(ctx, embed=embed)
 
     # User info on Server
     @commands.command()
