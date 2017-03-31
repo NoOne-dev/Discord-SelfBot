@@ -120,8 +120,7 @@ class Logging:
     # Blacklist "Help"
     @log.group(no_pm=True)
     async def blacklist(self, ctx):
-        if ctx.message.content == '/log blacklist':
-            await send(ctx, content='\N{HEAVY EXCLAMATION MARK SYMBOL} Use **FULL** command', ttl=5)
+        ...
 
     # Blacklist Guild
     @blacklist.command(no_pm=True)

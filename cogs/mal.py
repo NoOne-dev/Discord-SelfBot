@@ -121,7 +121,7 @@ class Mal:
     # MyAnimelist Manga
     @commands.command()
     async def manga(self, ctx, *, query):
-        se = await send(ctx, content='Searching...', delete=False)
+        se = await ctx.send(content='Searching...')
         try:
             i, link = await self.get_google_entries(query, 'manga')
         except RuntimeError as e:

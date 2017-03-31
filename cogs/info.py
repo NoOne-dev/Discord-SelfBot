@@ -57,7 +57,7 @@ class Userinfo:
             em.set_author(name=mem, icon_url='https://i.imgur.com/RHagTDg.png')
             await send(ctx, embed=em, ttl=20)
         else:
-            await ctx.send("\N{HEAVY EXCLAMATION MARK SYMBOL} User not found",  ttl=20)
+            await send(ctx, "\N{HEAVY EXCLAMATION MARK SYMBOL} User not found",  ttl=20)
 
     # User Avi on Server
     @commands.command()
@@ -70,7 +70,7 @@ class Userinfo:
             em.set_author(name=mem, icon_url='https://i.imgur.com/RHagTDg.png')
             await send(ctx, embed=em, ttl=20)
         else:
-            await ctx.send("\N{HEAVY EXCLAMATION MARK SYMBOL} User not found",  ttl=5)
+            await send(ctx, "\N{HEAVY EXCLAMATION MARK SYMBOL} User not found",  ttl=5)
 
     # Roleinfo on Server
     @commands.command(no_pm=True)
@@ -97,7 +97,7 @@ class Userinfo:
             em.set_thumbnail(url='http://www.colorhexa.com/%s.png' % str(role.colour).replace("#", ""))
             await send(ctx, embed=em, ttl=20)
         else:
-            await ctx.send("\N{HEAVY EXCLAMATION MARK SYMBOL} Role not found",  ttl=20)
+            await send(ctx, "\N{HEAVY EXCLAMATION MARK SYMBOL} Role not found",  ttl=20)
 
     # Serverinfo on Server
     @commands.command(no_pm=True, aliases=["server"])
@@ -172,7 +172,7 @@ class Userinfo:
                 desc += '{0} - `\\U{1:>08}`\nhttp://www.fileformat.info/info/unicode/char/{1}\n'.format(unicodedata.name(split[0]), format(ord(split[0]), 'x'))
             e.description = desc
             if len(emote) > 20:
-                await ctx.send(content='\N{HEAVY EXCLAMATION MARK SYMBOL} Come on, only 20 chars...', ttl=3)
+                await send(ctx, content='\N{HEAVY EXCLAMATION MARK SYMBOL} Come on, only 20 chars...', ttl=3)
             else:
                 await send(ctx, embed=e)
 
