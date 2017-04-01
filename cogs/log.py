@@ -117,13 +117,13 @@ class Logging:
 
         await send(ctx, embed=em, ttl=20)
 
-    # Blacklist "Help"
-    @log.group(no_pm=True)
+    @log.group()
+    @commands.guild_only()
     async def blacklist(self, ctx):
         ...
 
     # Blacklist Guild
-    @blacklist.command(no_pm=True)
+    @blacklist.command()
     async def guild(self, ctx):
         guilds = self.logging.get('block-guild', {})
         guild = ctx.message.guild.id
@@ -137,7 +137,7 @@ class Logging:
             await send(ctx, content='\N{HEAVY CHECK MARK} Added guild with ID ``%s`` to blacklist' % guild,  ttl=5)
 
     # Blacklist Channel
-    @blacklist.command(no_pm=True)
+    @blacklist.command()
     async def channel(self, ctx):
         channels = self.logging.get('block-channel', {})
         channel = ctx.message.channel.id
@@ -151,7 +151,7 @@ class Logging:
             await send(ctx, content='\N{HEAVY CHECK MARK} Added Channel with ID ``%s`` to blacklist' % channel,  ttl=5)
 
     # Blacklist user
-    @blacklist.command(no_pm=True)
+    @blacklist.command()
     async def user(self, ctx, msg: str):
         await ctx.message.delete()
         users = self.logging.get('block-user', {})

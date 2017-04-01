@@ -89,7 +89,8 @@ class Userinfo:
             await send(ctx, "\N{HEAVY EXCLAMATION MARK SYMBOL} User not found",  ttl=5)
 
     # Roleinfo on Server
-    @commands.command(no_pm=True)
+    @commands.command()
+    @commands.guild_only()
     async def role(self, ctx):
         role = None
         if 1 == len(ctx.message.role_mentions):
@@ -116,7 +117,8 @@ class Userinfo:
             await send(ctx, "\N{HEAVY EXCLAMATION MARK SYMBOL} Role not found",  ttl=20)
 
     # Serverinfo on Server
-    @commands.command(no_pm=True, aliases=["server"])
+    @commands.command(aliases=["server"])
+    @commands.guild_only()
     async def guild(self, ctx):
         serv = ctx.message.guild
         em = discord.Embed(timestamp=ctx.message.created_at, colour=ctx.message.author.colour)
@@ -139,7 +141,8 @@ class Userinfo:
         await send(ctx, embed=em, ttl=20)
 
     # Emotes from Server
-    @commands.command(no_pm=True)
+    @commands.command()
+    @commands.guild_only()
     async def emotes(self, ctx):
         unique_emojis = set(ctx.message.guild.emojis)
         em = discord.Embed(timestamp=ctx.message.created_at, title='Emotes [%s]' % len(unique_emojis), colour=ctx.message.author.colour)
