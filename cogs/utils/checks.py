@@ -40,7 +40,7 @@ def getwithoutInvoke(ctx):
 
 
 def getTimeDiff(t):
-    delta = datetime.datetime.now() - t
+    delta = datetime.datetime.utcnow() - t
     hours, remainder = divmod(int(delta.total_seconds()), 3600)
     minutes, seconds = divmod(remainder, 60)
     days, hours = divmod(hours, 24)

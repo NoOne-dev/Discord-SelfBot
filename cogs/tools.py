@@ -33,7 +33,7 @@ class Tools:
 
     @commands.command()
     async def socketstats(self, ctx):
-        delta = datetime.datetime.now() - self.bot.uptime
+        delta = datetime.datetime.utcnow() - self.bot.uptime
         minutes = delta.total_seconds() / 60
         total = sum(self.bot.socket_stats.values())
         cpm = total / minutes
@@ -44,9 +44,9 @@ class Tools:
     # Ping Time
     @commands.command()
     async def ping(self, ctx):
-        before = datetime.datetime.now()
+        before = datetime.datetime.utcnow()
         await (await self.bot.ws.ping())
-        ping = (datetime.datetime.now() - before) * 1000
+        ping = (datetime.datetime.utcnow() - before) * 1000
         pong = discord.Embed(title='Pong!', colour=0x9b59b6)
         pong.add_field(name="Response Time:", value='{:.2f}ms'.format(ping.total_seconds()))
         pong.set_thumbnail(url='http://i.imgur.com/SKEmkvf.png')

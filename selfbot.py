@@ -61,7 +61,7 @@ async def on_ready():
     log.info('Logged in as')
     log.info(str(bot.user) + '(' + str(bot.user.id) + ')')
     log.info('------')
-    bot.uptime = datetime.datetime.now()
+    bot.uptime = datetime.datetime.utcnow()
     bot.message_count = 0
     bot.commands_triggered = Counter()
     bot.socket_stats = Counter()

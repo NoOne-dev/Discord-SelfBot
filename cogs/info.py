@@ -6,7 +6,7 @@ import unicodedata
 
 from discord import utils
 from discord.ext import commands
-from .utils.checks import getwithoutInvoke, getUser, send, getDays
+from .utils.checks import getwithoutInvoke, getUser, send, getAgo
 
 log = logging.getLogger('LOG')
 
@@ -53,12 +53,12 @@ class Userinfo:
                 em.add_field(name='Partnership',
                              value=str(mem.relationship.type)[17:].title() if mem.relationship is not None else None,  inline=True)
                 em.add_field(name='Nitro',
-                             value='{}, {} Days'.format(pro.premium_since.__format__('%d/%m/%Y'), getDays(pro.premium_since)) if pro.premium is True else None,  inline=True)
+                             value='{}, {}'.format(pro.premium_since.__format__('%d/%m/%Y'), getAgo(pro.premium_since)) if pro.premium is True else None,  inline=True)
             em.add_field(name='Account Created',
-                         value='%s, %s Days' % (mem.created_at.__format__('%d/%m/%Y'), getDays(mem.created_at)), inline=True)
+                         value='%s, %s' % (mem.created_at.__format__('%d/%m/%Y'), getAgo(mem.created_at)), inline=True)
             if ctx.guild:
                 em.add_field(name='Join Date',
-                             value='%s, %s Days' % (mem.joined_at.__format__('%d/%m/%Y'), getDays(mem.joined_at)), inline=True)
+                             value='%s, %s' % (mem.joined_at.__format__('%d/%m/%Y'), getAgo(mem.joined_at)), inline=True)
 
                 rolelist = ', '.join(r.name for r in mem.roles)
                 if rolelist[11:]:
@@ -104,7 +104,7 @@ class Userinfo:
             em.add_field(name='ID',
                          value=role.id, inline=True)
             em.add_field(name='Created On',
-                         value='{}, {} Days ago'.format(role.created_at.__format__('%d/%m/%Y %H:%M:%S'), getDays(role.created_at)), inline=True)
+                         value='{}, {}'.format(role.created_at.__format__('%d/%m/%Y %H:%M:%S'), getAgo(role.created_at)), inline=True)
             em.add_field(name='Mentionable',
                          value=role.mentionable,  inline=True)
             em.add_field(name='Color',
@@ -129,7 +129,7 @@ class Userinfo:
         em.add_field(name='Region',
                      value=serv.region, inline=True)
         em.add_field(name='Created On',
-                     value='{}, {} Days ago'.format(serv.created_at.__format__('%d/%m/%Y %H:%M:%S'), getDays(serv.created_at)), inline=True)
+                     value='{}, {}'.format(serv.created_at.__format__('%d/%m/%Y %H:%M:%S'), getAgo(serv.created_at)), inline=True)
         em.add_field(name='Owner',
                      value='%s' % serv.owner,  inline=True)
         em.add_field(name='Members [%s]' % serv.member_count,
@@ -174,9 +174,8 @@ class Userinfo:
             emo = utils.get(self.bot.emojis, id=int(emote))
             if emo:
                 date = emo.created_at.__format__('%d/%m/%Y')
-                days = int((datetime.datetime.now() - emo.created_at).total_seconds() // (60 * 60 * 24))
                 e = discord.Embed(title='Custom Emote', colour=0x9b59b6)
-                e.description = '**Name: **{1}\n**ID: **{2}\n**Server: **{0}\n**Created at: **{3}, {4} Days ago\n**Image: **[link]({5})'.format(emo.guild.name, emo.name, emo.id, date, days, emo.url)
+                e.description = '**Name: **{1}\n**ID: **{2}\n**Server: **{0}\n**Created at: **{3}, {4}\n**Image: **[link]({5})'.format(emo.guild.name, emo.name, emo.id, date, getAgo(emo.created_at), emo.url)
                 e.set_thumbnail(url=emo.url)
                 await send(ctx, embed=e)
         else:
