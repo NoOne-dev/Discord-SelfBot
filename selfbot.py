@@ -19,7 +19,7 @@ log.setLevel(logging.INFO)
 fileFormatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', '%Y-%m-%d %H:%M:%S')
 consoleFormatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', '%H:%M:%S')
 
-selfFile = logging.FileHandler(filename='Logs/Self/SelfIgneel' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S") + '.log', encoding='utf-8', mode='w')
+selfFile = logging.FileHandler(filename='Logs/SelfBot.log', encoding='utf-8', mode='w')
 selfFile.setFormatter(fileFormatter)
 log.addHandler(selfFile)
 
@@ -30,7 +30,7 @@ log.addHandler(selfConsole)
 logger = logging.getLogger('discord')
 logger.setLevel(logging.INFO)
 
-discordFile = logging.FileHandler(filename='Logs/Discord/Discord' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S") + '.log', encoding='utf-8', mode='w')
+discordFile = logging.FileHandler(filename='Logs/Discord.log', encoding='utf-8', mode='w')
 discordFile.setFormatter(fileFormatter)
 logger.addHandler(discordFile)
 
