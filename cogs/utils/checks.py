@@ -47,8 +47,16 @@ def getTimeDiff(t):
     return '{d}:{h}:{m}:{s}'.format(d=days, h=hours, m=minutes, s=seconds)
 
 
-def getDays(time):
-    return int((datetime.datetime.now() - time).total_seconds() // (60 * 60 * 24))
+def getAgo(time):
+    sec = int((datetime.datetime.utcnow() - time).total_seconds())
+    if 120 > sec:
+        return f'{sec} seconds ago'
+    elif 3600 > sec:
+        return '{} minutes ago'.format(sec//60)
+    elif 86400 > sec:
+        return '{} hour ago'.format(sec//60//60) if 7200 > sec else '{} hours ago'.format(sec//60//60)
+    else:
+        return '{} day ago'.format(sec//60//60//24) if 7200 > sec else '{} days ago'.format(sec//60//60//24)
 
 
 # Find User on server

@@ -1,9 +1,10 @@
+import aiohttp
 import discord
-import datetime
+import json
 import logging
-import os
 import unicodedata
 
+from dateutil import parser
 from discord import utils
 from discord.ext import commands
 from .utils.checks import getwithoutInvoke, getUser, send, getAgo
@@ -19,14 +20,18 @@ class Userinfo:
     # User Avi on Server
     @commands.command()
     async def about(self, ctx):
-        cmd = r'git show -s HEAD~1..HEAD --format="[{}](https://github.com/IgneelDxD/Discord-SelfBot/commit/%H) %s (%cr)"'
-        cmd = cmd.format(r'\`%h\`') if os.name == 'posix' else cmd.format(r'`%h`')
-        revision = os.popen(cmd).read().strip()
         embed = discord.Embed()
         embed.set_author(name="Igneel's SelfBot", url="https://github.com/IgneelDxD/Discord-SelfBot")
         embed.description = "https://github.com/IgneelDxD/Discord-SelfBot\nThis is a Selfbot written by IgneelDxD\nFor support or feedback you can join my [Server](https://discord.gg/DJK8h3n)"
         embed.colour = 0x9b59b6
-        embed.add_field(name='Latest Changes', value=revision)
+
+        async with aiohttp.ClientSession() as cs:
+            async with cs.get("https://api.github.com/repos/IgneelDxD/Discord-SelfBot/commits") as resp:
+                result = json.loads(await resp.text())
+                form = '[``{0}``](https://github.com/IgneelDxD/Discord-SelfBot/commit/{0}) {1} ({2})'
+                com0 = form.format(result[0]['sha'][:7], result[0]['commit']['message'], getAgo(parser.parse(result[0]['commit']['author']['date'], ignoretz=True)))
+                com1 = form.format(result[1]['sha'][:7], result[1]['commit']['message'], getAgo(parser.parse(result[1]['commit']['author']['date'], ignoretz=True)))
+                embed.add_field(name='Latest Changes', value=f'{com0}\n{com1}')
         embed.set_thumbnail(url="https://i.imgur.com/cD51k3R.png")
         embed.set_footer(text='Made with discord.py | rewrite is the future!', icon_url='https://i.imgur.com/MyEXmz8.png')
         await send(ctx, embed=embed)
