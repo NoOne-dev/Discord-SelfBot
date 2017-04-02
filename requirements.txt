@@ -1,8 +1,9 @@
-aiohttp == 2.0.4
+aiohttp == 2.0.5
 beautifulsoup4 == 4.5.3
 git+https://github.com/Rapptz/discord.py@rewrite
 goslate == 1.5.1
 lxml == 3.7.3
-psutil == 5.1.0
-pytz == 2016.10
-spice_api == 1.0.4
+psutil == 5.2.1
+python_dateutil == 2.6.0
+pytz == 2017.2
+spice_api == 1.0.4s
