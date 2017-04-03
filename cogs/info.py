@@ -2,6 +2,7 @@ import aiohttp
 import discord
 import json
 import logging
+import re
 import unicodedata
 
 from dateutil import parser
@@ -16,6 +17,7 @@ class Userinfo:
 
     def __init__(self, bot):
         self.bot = bot
+        self.emoji_reg = re.compile(r'<:.+?:([0-9]{15,21})>')
 
     # User Avi on Server
     @commands.command()
@@ -170,6 +172,22 @@ class Userinfo:
         if unique_emojis is None:
             em.add_field(name='Emotes', value='Not Found \N{HEAVY EXCLAMATION MARK SYMBOL}', inline=False)
         await send(ctx, embed=em, ttl=20)
+
+    # Jumbo Emote
+    @commands.command()
+    async def jumbo(self, ctx):
+        e = self.emoji_reg.findall(ctx.message.content)
+        if e:
+            if len(e) > 1:
+                await send(ctx, content='\N{HEAVY EXCLAMATION MARK SYMBOL} Only One Emote...', ttl=3)
+            else:
+                emo = utils.get(self.bot.emojis, id=int(e[0]))
+                if emo:
+                    em = discord.Embed(colour=0x9b59b6)
+                    em.set_image(url=emo.url)
+                    await send(ctx, embed=em)
+        else:
+            await send(ctx, content='\N{HEAVY EXCLAMATION MARK SYMBOL} Only Emotes...', ttl=3)
 
     # Info of Custom or Unicode Emotes
     @commands.command()
