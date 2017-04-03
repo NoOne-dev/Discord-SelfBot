@@ -136,7 +136,7 @@ class Userinfo:
         em.add_field(name='Region',
                      value=serv.region, inline=True)
         em.add_field(name='Created On',
-                     value='{}, {}'.format(serv.created_at.__format__('%d/%m/%Y %H:%M:%S'), getAgo(serv.created_at)), inline=True)
+                     value='{}\n{}'.format(serv.created_at.__format__('%d/%m/%Y %H:%M:%S'), getAgo(serv.created_at)), inline=True)
         em.add_field(name='Owner',
                      value='%s' % serv.owner,  inline=True)
         em.add_field(name='Members [%s]' % serv.member_count,
@@ -192,15 +192,18 @@ class Userinfo:
     # Info of Custom or Unicode Emotes
     @commands.command()
     async def emote(self, ctx, emote: str):
-        if '>' in emote and '<:' in emote and ':' in emote:
-            emote = emote.replace('<:', '').replace('>', '').split(':')[1]
-            emo = utils.get(self.bot.emojis, id=int(emote))
-            if emo:
-                date = emo.created_at.__format__('%d/%m/%Y')
-                e = discord.Embed(title='Custom Emote', colour=0x9b59b6)
-                e.description = '**Name: **{1}\n**ID: **{2}\n**Server: **{0}\n**Created at: **{3}, {4}\n**Image: **[link]({5})'.format(emo.guild.name, emo.name, emo.id, date, getAgo(emo.created_at), emo.url)
-                e.set_thumbnail(url=emo.url)
-                await send(ctx, embed=e)
+        e = self.emoji_reg.findall(ctx.message.content)
+        if e:
+            if len(e) > 1:
+                await send(ctx, content='\N{HEAVY EXCLAMATION MARK SYMBOL} Only One Emote...', ttl=3)
+            else:
+                emo = utils.get(self.bot.emojis, id=int(e[0]))
+                if emo:
+                    date = emo.created_at.__format__('%d/%m/%Y')
+                    e = discord.Embed(title='Custom Emote', colour=0x9b59b6)
+                    e.description = '**Name: **{1}\n**ID: **{2}\n**Server: **{0}\n**Created at: **{3}, {4}\n**Image: **[link]({5})'.format(emo.guild.name, emo.name, emo.id, date, getAgo(emo.created_at), emo.url)
+                    e.set_thumbnail(url=emo.url)
+                    await send(ctx, embed=e)
         else:
             split = '\n'.join(emote).split('\n')
             e = discord.Embed(title='Unicode Emote {}'.format(emote), colour=0x9b59b6)
