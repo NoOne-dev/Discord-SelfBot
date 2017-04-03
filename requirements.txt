@@ -6,4 +6,4 @@ lxml == 3.7.3
 psutil == 5.2.1
 python_dateutil == 2.6.0
 pytz == 2017.2
-spice_api == 1.0.4s
+spice_api == 1.0.4
