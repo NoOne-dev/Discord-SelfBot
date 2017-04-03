@@ -2,7 +2,6 @@ import aiohttp
 import discord
 import json
 import logging
-import re
 import unicodedata
 
 from dateutil import parser
@@ -17,9 +16,8 @@ class Userinfo:
 
     def __init__(self, bot):
         self.bot = bot
-        self.emoji_reg = re.compile(r'<:.+?:([0-9]{15,21})>')
 
-    # About this Selfbot
+    # User Avi on Server
     @commands.command()
     async def about(self, ctx):
         embed = discord.Embed()
@@ -111,56 +109,104 @@ class Userinfo:
             em.add_field(name='ID',
                          value=role.id, inline=True)
             em.add_field(name='Created On',
-                         value='{}, {}'.format(role.created_at.__format__('%d/%m/%Y'), getAgo(role.created_at)), inline=True)
+                         value='{}, {}'.format(role.created_at.__format__('%d/%m/%Y %H:%M:%S'), getAgo(role.created_at)), inline=True)
             em.add_field(name='Mentionable',
                          value=role.mentionable,  inline=True)
             em.add_field(name='Color',
                          value=str(role.colour).upper(), inline=True)
             em.add_field(name='Members [%s]' % len(role.members),
                          value='%s Online' % sum(1 for m in role.members if m.status != discord.Status.offline), inline=True)
+            em.add_field(name='Visibility',
+                         value=role.hoist, inline=True)
+            em.add_field(name='Position',
+                         value=role.position, inline=True)
+            em.add_field(name='Managed',
+                         value=role.managed, inline=True)
+            em.add_field(name='Default',
+                         value=role.is_default(), inline=True)
             em.set_thumbnail(url='http://www.colorhexa.com/%s.png' % str(role.colour).replace("#", ""))
             await send(ctx, embed=em, ttl=20)
         else:
             await send(ctx, "\N{HEAVY EXCLAMATION MARK SYMBOL} Role not found",  ttl=20)
 
+    # Channelinfo on Server
+    @commands.command()
+    @commands.guild_only()
+    async def channel(self, ctx):
+        channel = None
+        if 1 == len(ctx.message.channel_mentions):
+            channel = ctx.message.channel_mentions[0]
+        else:
+            channel = utils.find(lambda r: getwithoutInvoke(ctx).strip().lower() in r.name.lower(), ctx.message.guild.channels)
+        if channel is not None:
+            em = discord.Embed(timestamp=ctx.message.created_at, colour=0x9b59b6)
+            em.add_field(name='Name',
+                         value=channel.name, inline=True)
+            em.add_field(name='ID',
+                         value=channel.id, inline=True)
+            em.add_field(name='Created On',
+                         value='{}, {}'.format(channel.created_at.__format__('%d/%m/%Y %H:%M:%S'), getAgo(channel.created_at)), inline=True)
+            em.add_field(name='Members [%s]' % len(channel.members),
+                         value='%s Online' % sum(1 for m in channel.members if m.status != discord.Status.offline), inline=True)
+            if channel.topic:
+                em.add_field(name='Topic',
+                             value=channel.topic, inline=False)
+#             em.add_field(name='Changed Roles',
+#                          value=channel.changed_roles, inline=True)
+            await send(ctx, embed=em, ttl=20)
+        else:
+            await send(ctx, "\N{HEAVY EXCLAMATION MARK SYMBOL} Channel not found",  ttl=20)
+            
     # Serverinfo on Server
-    @commands.group(aliases=["server"])
+    @commands.command(aliases=["server"])
     @commands.guild_only()
     async def guild(self, ctx):
-        if ctx.invoked_subcommand is None:
-            serv = ctx.message.guild
-            em = discord.Embed(timestamp=ctx.message.created_at, colour=ctx.message.author.colour)
-            em.set_author(name=serv.name, icon_url='https://i.imgur.com/RHagTDg.png')
-            em.set_thumbnail(url=serv.icon_url)
-            em.add_field(name='Owner',
-                         value='%s' % serv.owner,  inline=True)
-            em.add_field(name='Created On',
-                         value='{}, {}'.format(serv.created_at.__format__('%d/%m/%Y'), getAgo(serv.created_at)), inline=True)
-            em.add_field(name='Region',
-                         value=serv.region, inline=True)
-            em.add_field(name='ID',
-                         value=serv.id, inline=True)
-            em.add_field(name='Verification Level',
-                         value=serv.verification_level, inline=True)
-            em.add_field(name='2FA Requirement',
-                         value="True" if serv.mfa_level == 1 else "False", inline=True)
-            em.add_field(name='Members [%s]' % serv.member_count,
-                         value='%s Online' % sum(1 for m in serv.members if m.status != discord.Status.offline), inline=True)
-            em.add_field(name='Channels [%s]' % len(serv.channels),
-                         value='%s Text | %s Voice' % (len(serv.text_channels), len(serv.voice_channels)), inline=True)
-            await send(ctx, embed=em, ttl=20)
-
-    # Server roles on Server
-    @guild.command()
-    async def roles(self, ctx):
         serv = ctx.message.guild
         em = discord.Embed(timestamp=ctx.message.created_at, colour=ctx.message.author.colour)
+        em.set_author(name=serv.name, icon_url='https://i.imgur.com/RHagTDg.png')
+        em.set_thumbnail(url=serv.icon_url)
+        em.add_field(name='ID',
+                     value=serv.id, inline=True)
+        em.add_field(name='Region',
+                     value=serv.region, inline=True)
+        em.add_field(name='Created On',
+                     value='{}, {}'.format(serv.created_at.__format__('%d/%m/%Y %H:%M:%S'), getAgo(serv.created_at)), inline=True)
+        em.add_field(name='Owner',
+                     value='%s' % serv.owner,  inline=True)
+        em.add_field(name='Members [%s]' % serv.member_count,
+                     value='%s Online' % sum(1 for m in serv.members if m.status != discord.Status.offline), inline=True)
+        em.add_field(name='Channels [%s]' % len(serv.channels),
+                     value='%s Text | %s Voice' % (len(serv.text_channels), len(serv.voice_channels)), inline=True)
         em.add_field(name='Roles [%s]' % (len(serv.roles)-1),
                      value=', '.join(r.name for r in serv.role_hierarchy)[:-11], inline=False)
+        em.add_field(name='Verification Level',
+                     value=serv.verification_level, inline=True)
+        if serv.mfa_level is 1:
+            em.add_field(name='2FA Status',
+                         value='Forced', inline=True)
+        else:
+            em.add_field(name='2FA Status',
+                         value='Passive', inline=True)
+        em.add_field(name='Default Role',
+                     value=serv.default_role, inline=True)
+        em.add_field(name='AFK Timeout',
+                     value=serv.afk_timeout, inline=True)
+#         if serv.features is ['']:
+#             em.add_field(name='Special Features',
+#                          value='None', inline=True)
+#         else:
+#             em.add_field(name='Special Features',
+#                          value=serv.features, inline=True)
+        em.add_field(name='Chunked',
+                     value=serv.chunked, inline=True)
+        if serv.shard_id:
+            em.add_field(name='Shard ID',
+                         value=serv.shard_id, inline=True)
         await send(ctx, embed=em, ttl=20)
 
     # Emotes from Server
-    @guild.command()
+    @commands.command()
+    @commands.guild_only()
     async def emotes(self, ctx):
         unique_emojis = set(ctx.message.guild.emojis)
         em = discord.Embed(timestamp=ctx.message.created_at, title='Emotes [%s]' % len(unique_emojis), colour=ctx.message.author.colour)
@@ -184,37 +230,18 @@ class Userinfo:
             em.add_field(name='Emotes', value='Not Found \N{HEAVY EXCLAMATION MARK SYMBOL}', inline=False)
         await send(ctx, embed=em, ttl=20)
 
-    # Jumbo Emote
-    @commands.command()
-    async def jumbo(self, ctx):
-        e = self.emoji_reg.findall(ctx.message.content)
-        if e:
-            if len(e) > 1:
-                await send(ctx, content='\N{HEAVY EXCLAMATION MARK SYMBOL} Only One Emote...', ttl=3)
-            else:
-                emo = utils.get(self.bot.emojis, id=int(e[0]))
-                if emo:
-                    em = discord.Embed(colour=0x9b59b6)
-                    em.set_image(url=emo.url)
-                    await send(ctx, embed=em)
-        else:
-            await send(ctx, content='\N{HEAVY EXCLAMATION MARK SYMBOL} Only Emotes...', ttl=3)
-
     # Info of Custom or Unicode Emotes
     @commands.command()
     async def emote(self, ctx, emote: str):
-        e = self.emoji_reg.findall(ctx.message.content)
-        if e:
-            if len(e) > 1:
-                await send(ctx, content='\N{HEAVY EXCLAMATION MARK SYMBOL} Only One Emote...', ttl=3)
-            else:
-                emo = utils.get(self.bot.emojis, id=int(e[0]))
-                if emo:
-                    date = emo.created_at.__format__('%d/%m/%Y')
-                    e = discord.Embed(title='Custom Emote', colour=0x9b59b6)
-                    e.description = '**Name: **{1}\n**ID: **{2}\n**Server: **{0}\n**Created at: **{3}, {4}\n**Image: **[link]({5})'.format(emo.guild.name, emo.name, emo.id, date, getAgo(emo.created_at), emo.url)
-                    e.set_thumbnail(url=emo.url)
-                    await send(ctx, embed=e)
+        if '>' in emote and '<:' in emote and ':' in emote:
+            emote = emote.replace('<:', '').replace('>', '').split(':')[1]
+            emo = utils.get(self.bot.emojis, id=int(emote))
+            if emo:
+                date = emo.created_at.__format__('%d/%m/%Y')
+                e = discord.Embed(title='Custom Emote', colour=0x9b59b6)
+                e.description = '**Name: **{1}\n**ID: **{2}\n**Server: **{0}\n**Created at: **{3}, {4}\n**Image: **[link]({5})'.format(emo.guild.name, emo.name, emo.id, date, getAgo(emo.created_at), emo.url)
+                e.set_thumbnail(url=emo.url)
+                await send(ctx, embed=e)
         else:
             split = '\n'.join(emote).split('\n')
             e = discord.Embed(title='Unicode Emote {}'.format(emote), colour=0x9b59b6)
